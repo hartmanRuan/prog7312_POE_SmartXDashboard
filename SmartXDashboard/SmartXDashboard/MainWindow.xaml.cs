@@ -20,5 +20,12 @@ namespace SmartXDashboard
         {
             InitializeComponent();
         }
+
+        private void SignOut_Click(object sender, RoutedEventArgs e)
+        {
+            LoginWindow login = new LoginWindow();
+            login.Show();
+            this.Close();
+        }
     }
 }
