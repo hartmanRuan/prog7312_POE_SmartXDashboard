@@ -19,6 +19,21 @@ namespace SmartXDashboard
         public MainWindow()
         {
             InitializeComponent();
+
+            MainContentFrame.Children.Clear();
+            MainContentFrame.Children.Add(new SensorIngestionView());
+        }
+
+        private void NavProvisioning_Click(object sender, RoutedEventArgs e)
+        {
+            MainContentFrame.Children.Clear();
+            MainContentFrame.Children.Add(new SensorIngestionView());
+        }
+
+        private void NavTelemetry_Click(object sender, RoutedEventArgs e)
+        {
+            MainContentFrame.Children.Clear();
+            MainContentFrame.Children.Add(new TelemetryStreamView());
         }
 
         private void SignOut_Click(object sender, RoutedEventArgs e)

@@ -61,6 +61,29 @@
             <Setter Property="IsEnabled" Value="False"/>
         </Style>
 
+        <!-- Tab Toggle Button Style for Sub-Navigation -->
+        <Style x:Key="TabButtonStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#8A8A93"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="Transparent" Padding="0,0,0,6" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="#FFC700"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FFC700"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Red Logout Button Style -->
         <Style x:Key="RedLogoutButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -117,7 +140,7 @@
                 <StackPanel Grid.Row="1">
                     <TextBlock Text="ARCHITECTURAL PILLARS" FontSize="10" FontWeight="Bold" Foreground="#FFC700" Margin="12,0,0,12"/>
 
-                    <!-- Pillar 1: Ingestion & Telemetry (Active for Part 1) -->
+                    <!-- Pillar 1: Ingestion & Telemetry (Active) -->
                     <Button Content="⚡  Sensor Ingestion &amp; Telemetry" Style="{StaticResource ActiveNavButtonStyle}"/>
 
                     <!-- Pillar 2: Command Stream (Disabled for Part 2) -->
@@ -151,11 +174,12 @@
         <Grid Grid.Column="1" Margin="32">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <!-- Top View Header -->
-            <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid Grid.Row="0" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -175,14 +199,15 @@
                 </Border>
             </Grid>
 
+            <!-- SUB-NAVIGATION VIEW SWITCHER -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+                <RadioButton x:Name="NavProvisioning" Content="PROVISION NODE" Style="{StaticResource TabButtonStyle}" IsChecked="True" Click="NavProvisioning_Click" Margin="0,0,24,0"/>
+                <RadioButton x:Name="NavTelemetry" Content="LIVE TELEMETRY STREAM" Style="{StaticResource TabButtonStyle}" Click="NavTelemetry_Click"/>
+            </StackPanel>
+
             <!-- DYNAMIC VIEW CONTAINER -->
-            <!-- We will inject the Sensor Registration form and Telemetry Data Stream into this ContentControl next -->
-            <Border Grid.Row="1" Background="#141418" CornerRadius="10" BorderBrush="#2A2A32" BorderThickness="1" Padding="24">
-                <Grid x:Name="MainContentFrame">
-                    <TextBlock Text="[ Step 2: Sensor Registration &amp; Config Upload View Will Sit Here ]" 
-                               HorizontalAlignment="Center" VerticalAlignment="Center" 
-                               Foreground="#8A8A93" FontSize="14" FontWeight="SemiBold"/>
-                </Grid>
+            <Border Grid.Row="2" Background="#141418" CornerRadius="10" BorderBrush="#2A2A32" BorderThickness="1" Padding="24">
+                <Grid x:Name="MainContentFrame"/>
             </Border>
         </Grid>
     </Grid>
