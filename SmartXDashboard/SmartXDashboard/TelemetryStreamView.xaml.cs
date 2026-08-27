@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using SmartXDashboard.Models;
@@ -10,43 +11,91 @@ namespace SmartXDashboard
     public partial class TelemetryStreamView : UserControl
     {
         private readonly TelemetrySimulator _simulator;
+
+        // Internal master buffer for keeping all received packets
+        private readonly ObservableCollection<TelemetryPacket<double>> _allPackets
+            = new ObservableCollection<TelemetryPacket<double>>();
+
+        // Public collection bound to the TelemetryGrid
         public ObservableCollection<TelemetryPacket<double>> TelemetryStream { get; set; }
+            = new ObservableCollection<TelemetryPacket<double>>();
 
         public TelemetryStreamView()
         {
             InitializeComponent();
-
-            TelemetryStream = new ObservableCollection<TelemetryPacket<double>>();
 
             if (TelemetryGrid != null)
             {
                 TelemetryGrid.ItemsSource = TelemetryStream;
             }
 
-            // Initialize simulator to push telemetry every 1.5 seconds
+            // Initialize simulator (fires every 1.5s)
             _simulator = new TelemetrySimulator(1500);
             _simulator.OnTelemetryReceived += Simulator_OnTelemetryReceived;
 
-            // Start/Stop timer with view lifecycle
+            // Manage background timer thread with view lifecycle
             Loaded += (s, e) => _simulator.Start();
             Unloaded += (s, e) => _simulator.Stop();
         }
 
         private void Simulator_OnTelemetryReceived(TelemetryPacket<double> packet)
         {
-            // Marshal background thread execution to WPF UI Thread
+            // Marshal thread execution to WPF UI Thread
             Dispatcher.Invoke(() =>
             {
-                if (TelemetryStream.Count >= 50)
+                // Cap master buffer at 100 items for performance
+                if (_allPackets.Count >= 100)
                 {
-                    TelemetryStream.RemoveAt(TelemetryStream.Count - 1);
+                    _allPackets.RemoveAt(_allPackets.Count - 1);
                 }
 
-                TelemetryStream.Insert(0, packet);
+                _allPackets.Insert(0, packet);
+                ApplyFilters();
             });
         }
 
-        // Manual trigger button handler (kept for manual override testing)
+        private void SearchMacInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ApplyFilters();
+        }
+
+        private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyFilters();
+        }
+
+        private void ApplyFilters()
+        {
+            if (TelemetryGrid == null) return;
+
+            string filterText = SearchMacInput?.Text.Trim().ToLower() ?? string.Empty;
+            string selectedStatus = (StatusFilterComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "All Streams";
+
+            // LINQ filtering on MAC Address and NodeStatus severity
+            var filtered = _allPackets.Where(packet =>
+            {
+                bool matchesMac = string.IsNullOrEmpty(filterText) ||
+                                  packet.MacAddress.ToLower().Contains(filterText);
+
+                bool matchesStatus = selectedStatus switch
+                {
+                    "Active" or "Normal" => packet.SeverityStatus == NodeStatus.Active,
+                    "Warning" => packet.SeverityStatus == NodeStatus.Warning,
+                    "Critical" => packet.SeverityStatus == NodeStatus.Critical,
+                    _ => true
+                };
+
+                return matchesMac && matchesStatus;
+            }).ToList();
+
+            // Refresh UI stream collection
+            TelemetryStream.Clear();
+            foreach (var item in filtered)
+            {
+                TelemetryStream.Add(item);
+            }
+        }
+
         private void SimulatePacket_Click(object sender, RoutedEventArgs e)
         {
             Random rand = new Random();
@@ -58,11 +107,8 @@ namespace SmartXDashboard
                 rand.Next(0, 2) == 0 ? NodeStatus.Active : NodeStatus.Warning
             );
 
-            TelemetryStream.Insert(0, packet);
+            _allPackets.Insert(0, packet);
+            ApplyFilters();
         }
-
-        private void SearchMacInput_TextChanged(object sender, TextChangedEventArgs e) { }
-
-        private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
     }
 }
