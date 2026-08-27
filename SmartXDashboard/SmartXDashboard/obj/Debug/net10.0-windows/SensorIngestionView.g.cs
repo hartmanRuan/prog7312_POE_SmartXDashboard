@@ -116,7 +116,7 @@ namespace SmartXDashboard {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/SmartXDashboard;component/sensoringestionview.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/SmartXDashboard;V1.0.0.0;component/sensoringestionview.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\SensorIngestionView.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
