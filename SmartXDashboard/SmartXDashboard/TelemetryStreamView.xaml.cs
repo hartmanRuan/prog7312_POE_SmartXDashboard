@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -11,6 +12,7 @@ namespace SmartXDashboard
     public partial class TelemetryStreamView : UserControl
     {
         private readonly TelemetrySimulator _simulator;
+        private readonly ExportService _exportService = new ExportService();
 
         // Internal master buffer for keeping all received packets
         private readonly ObservableCollection<TelemetryPacket<double>> _allPackets
@@ -109,6 +111,30 @@ namespace SmartXDashboard
 
             _allPackets.Insert(0, packet);
             ApplyFilters();
+        }
+
+        // Export button handler linked to SaveFileDialog
+        private void ExportCsv_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "CSV File (*.csv)|*.csv|All Files (*.*)|*.*",
+                FileName = $"TelemetryExport_{DateTime.Now:yyyyMMdd_HHmmss}.csv"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                bool success = _exportService.ExportTelemetryToCsv(TelemetryStream, saveFileDialog.FileName);
+
+                if (success)
+                {
+                    MessageBox.Show("Telemetry stream data successfully exported to CSV!", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to export telemetry data to CSV.", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }
