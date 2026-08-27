@@ -1,17 +1,11 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using SmartXDashboard.Models;
+using SmartXDashboard.Services;
 
 namespace SmartXDashboard
 {
@@ -21,6 +15,8 @@ namespace SmartXDashboard
     public partial class SensorIngestionView : UserControl
     {
         private string selectedFilePath = string.Empty;
+        private readonly ConfigFileParser _configParser = new ConfigFileParser();
+        private readonly BarcodeService _barcodeService = new BarcodeService();
 
         public SensorIngestionView()
         {
@@ -38,11 +34,13 @@ namespace SmartXDashboard
             if (openFileDialog.ShowDialog() == true)
             {
                 selectedFilePath = openFileDialog.FileName;
-                FileInfo fileInfo = new FileInfo(selectedFilePath);
 
-                FileNameLabel.Text = fileInfo.Name;
-                FileNameLabel.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
-                FileSizeLabel.Text = $"Size: {(fileInfo.Length / 1024.0):F2} KB";
+                // Parse configuration file metadata (Commit 5)
+                var configMetadata = _configParser.ParseFile(selectedFilePath);
+
+                FileNameLabel.Text = configMetadata.FileName;
+                FileNameLabel.Foreground = new SolidColorBrush(Colors.White);
+                FileSizeLabel.Text = $"Size: {configMetadata.FileSizeKB} KB ({configMetadata.PropertyCount} keys)";
             }
         }
 
@@ -56,12 +54,46 @@ namespace SmartXDashboard
                 return;
             }
 
-            // Update Dynamic Engagement Panel Preview
-            GeneratedNodeIdText.Text = $"NODE ID: {mac.ToUpper()}";
-            StatusTagText.Text = "Status: Provisioned & Active";
-            StatusTagText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#34C759"));
+            // Map UI ComboBox selections to Enums safely
+            ZoneLocation zone = ZoneLocation.ZoneA_Environmental;
+            if (ZoneComboBox != null && ZoneComboBox.SelectedIndex >= 0)
+            {
+                zone = (ZoneLocation)ZoneComboBox.SelectedIndex;
+            }
 
-            MessageBox.Show($"Sensor Node [{mac}] successfully registered!", "Ingestion Pipeline", MessageBoxButton.OK, MessageBoxImage.Information);
+            SensorCategory category = SensorCategory.Environmental;
+            if (CategoryComboBox != null && CategoryComboBox.SelectedIndex >= 0)
+            {
+                category = (SensorCategory)CategoryComboBox.SelectedIndex;
+            }
+
+            // Parse file metadata
+            var configMetadata = _configParser.ParseFile(selectedFilePath);
+
+            // Create model and register into memory repository (Commit 1 & 3)
+            SensorNode node = new SensorNode(mac, zone, category, configMetadata.FileName, configMetadata.FileSizeKB);
+            bool success = SensorRepository.Instance.RegisterNode(node);
+
+            if (success)
+            {
+                // Update Dynamic Engagement Panel Preview
+                GeneratedNodeIdText.Text = node.NodeId;
+                StatusTagText.Text = "Status: Provisioned & Active";
+                StatusTagText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#34C759"));
+
+                // Generate and render QR Barcode (Commit 6 & 7)
+                var barcodeImage = _barcodeService.GenerateBarcodeImage(node.MacAddress);
+                if (barcodeImage != null && BarcodePreviewImage != null)
+                {
+                    BarcodePreviewImage.Source = barcodeImage;
+                }
+
+                MessageBox.Show($"Sensor Node [{node.NodeId}] successfully registered in repository!", "Ingestion Pipeline", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show($"A node with MAC address [{mac}] already exists in the repository.", "Duplicate Node", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
