@@ -53,7 +53,7 @@ namespace SmartXDashboard.Services
 
         private void SeedInitialNodes()
         {
-            var seedNodes = new[]
+            /*var seedNodes = new[]
             {
                 new SensorNode("00:1A:2C:3D:4E:5F", ZoneLocation.ZoneA_Environmental, SensorCategory.Environmental, "env_config.json", 12),
                 new SensorNode("00:1A:2C:3D:4E:6A", ZoneLocation.ZoneB_PowerGrid, SensorCategory.Electrical, "grid_spec.txt", 8),
@@ -63,6 +63,23 @@ namespace SmartXDashboard.Services
             foreach (var node in seedNodes)
             {
                 _nodes.TryAdd(node.MacAddress.ToUpper(), node);
+            }*/
+        }
+
+        public void AddNode(SensorNode node)
+        {
+            if (node != null && !string.IsNullOrWhiteSpace(node.MacAddress))
+            {
+                // ConcurrentDictionary uses TryAdd instead of Add
+                if (!_nodes.ContainsKey(node.MacAddress))
+                {
+                    _nodes.TryAdd(node.MacAddress, node);
+                }
+                else
+                {
+                    // Update existing node entry if it already exists
+                    _nodes[node.MacAddress] = node;
+                }
             }
         }
     }

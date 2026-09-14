@@ -17,7 +17,7 @@ namespace SmartXDashboard.Services
 
         public bool IsRunning => _timer.Enabled;
 
-        public TelemetrySimulator(double intervalMilliseconds = 2000)
+        public TelemetrySimulator(double intervalMilliseconds = 1500)
         {
             _timer = new System.Timers.Timer(intervalMilliseconds);
             _timer.Elapsed += Timer_Elapsed;
@@ -35,8 +35,11 @@ namespace SmartXDashboard.Services
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            var nodes = SensorRepository.Instance.GetAllNodes().ToList();
-            if (!nodes.Any())
+            // Pull only nodes that have actually been provisioned in your system repository
+            var nodes = SensorRepository.Instance.GetAllNodes()?.ToList();
+
+            // If no sensors are provisioned yet, suppress fake telemetry generation
+            if (nodes == null || !nodes.Any())
                 return;
 
             // Pick a random registered node to simulate
@@ -52,10 +55,12 @@ namespace SmartXDashboard.Services
                     payloadValue = Math.Round(220 + (_random.NextDouble() * 20 - 10), 2); // 210V - 230V
                     unit = "V";
                     break;
+
                 case SensorCategory.Mechanical:
                     payloadValue = _random.Next(100, 1500); // RPM or pulse counts
                     unit = "RPM";
                     break;
+
                 case SensorCategory.Environmental:
                 default:
                     payloadValue = Math.Round(18 + (_random.NextDouble() * 14), 2); // 18°C - 32°C
@@ -82,7 +87,7 @@ namespace SmartXDashboard.Services
                 status
             );
 
-            // Raise the event on the background thread
+            // Raise the event on the background timer thread
             OnTelemetryReceived?.Invoke(packet);
         }
     }

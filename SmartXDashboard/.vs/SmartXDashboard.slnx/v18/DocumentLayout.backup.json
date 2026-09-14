@@ -3,12 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\sensoringestionview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\sensoringestionview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\services\\sensorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\services\\sensorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\sensoringestionview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\sensoringestionview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\models\\sensornode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\models\\sensornode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\services\\telemetryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\services\\telemetryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,11 +26,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SensorRepository.cs",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\SensorRepository.cs",
+              "RelativeDocumentMoniker": "SmartXDashboard\\Services\\SensorRepository.cs",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\SensorRepository.cs",
+              "RelativeToolTip": "SmartXDashboard\\Services\\SensorRepository.cs",
+              "ViewState": "AgIAACsAAAAAbGZmZmYNwDQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-14T05:26:53.835Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SensorNode.cs",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Models\\SensorNode.cs",
+              "RelativeDocumentMoniker": "SmartXDashboard\\Models\\SensorNode.cs",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Models\\SensorNode.cs",
+              "RelativeToolTip": "SmartXDashboard\\Models\\SensorNode.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-14T05:21:06.768Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -32,21 +66,22 @@
               "RelativeDocumentMoniker": "SmartXDashboard\\SensorIngestionView.xaml.cs",
               "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml.cs",
               "RelativeToolTip": "SmartXDashboard\\SensorIngestionView.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGAAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAEMAAAAAEGZmZmbmvzYAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-14T05:10:18.388Z",
+              "WhenOpened": "2026-09-14T05:18:28.729Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "SensorIngestionView.xaml",
-              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml",
-              "RelativeDocumentMoniker": "SmartXDashboard\\SensorIngestionView.xaml",
-              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml",
-              "RelativeToolTip": "SmartXDashboard\\SensorIngestionView.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-09-14T05:09:49.882Z",
+              "DocumentIndex": 3,
+              "Title": "TelemetryService.cs",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\TelemetryService.cs",
+              "RelativeDocumentMoniker": "SmartXDashboard\\Services\\TelemetryService.cs",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\TelemetryService.cs",
+              "RelativeToolTip": "SmartXDashboard\\Services\\TelemetryService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-14T05:18:26.341Z",
               "EditorCaption": ""
             }
           ]
