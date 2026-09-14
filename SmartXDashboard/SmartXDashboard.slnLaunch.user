@@ -5,10 +5,6 @@
       {
         "Path": "SmartXDashboard\\SmartXDashboard.csproj",
         "Action": "Start"
-      },
-      {
-        "Path": "SmartX.Api\\SmartX.Api.csproj",
-        "Action": "Start"
       }
     ]
   }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartXDashboard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bd02c1fb34cbb1e4d5235d13e7e659b59494003d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9c8aed88dde79989236c9c1c4e03cef1e7838c71")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartXDashboard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartXDashboard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
