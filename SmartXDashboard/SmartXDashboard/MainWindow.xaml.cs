@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using SmartX.Api.Repositories;
 using SmartXDashboard.Models;
 using SmartXDashboard.Services;
 
@@ -13,6 +14,7 @@ namespace SmartXDashboard
     public partial class MainWindow : Window
     {
         private readonly AnalyticsService _analyticsService = new AnalyticsService();
+        private readonly TelemetrySimulator _simulator =new();
 
         public MainWindow()
         {
@@ -20,6 +22,7 @@ namespace SmartXDashboard
 
             MainContentFrame.Children.Clear();
             MainContentFrame.Children.Add(new SensorIngestionView());
+            
 
             RefreshDashboardMetrics();
         }
@@ -34,6 +37,8 @@ namespace SmartXDashboard
         {
             MainContentFrame.Children.Clear();
             MainContentFrame.Children.Add(new TelemetryStreamView());
+            _simulator.Start();
+
         }
 
         private void SignOut_Click(object sender, RoutedEventArgs e)
@@ -67,12 +72,12 @@ namespace SmartXDashboard
 
         private List<TelemetryPacket<double>> GetInitialSamplePackets()
         {
-            var nodes = SensorRepository.Instance.GetAllNodes().ToList();
+            var nodes = SensorRepository.Instance.GetNodes().ToList();
             var list = new List<TelemetryPacket<double>>();
 
             foreach (var node in nodes)
             {
-                list.Add(new TelemetryPacket<double>(node.MacAddress, node.LocationZone, 22.4, "°C", NodeStatus.Active));
+                list.Add(new TelemetryPacket<double>(node.MacAddress, (ZoneLocation)node.LocationZone, 22.4, "°C", NodeStatus.Active));
             }
 
             return list;

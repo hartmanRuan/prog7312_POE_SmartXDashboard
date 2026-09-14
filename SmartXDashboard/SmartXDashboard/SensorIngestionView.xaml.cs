@@ -12,6 +12,7 @@ namespace SmartXDashboard
 {
     public partial class SensorIngestionView : UserControl
     {
+        private readonly TelemetryApiClient _apiClient = new TelemetryApiClient();
         private string _selectedFilePath = string.Empty;
 
         public SensorIngestionView()
@@ -37,7 +38,7 @@ namespace SmartXDashboard
             }
         }
 
-        private void RegisterSensor_Click(object sender, RoutedEventArgs e)
+        private async void RegisterSensor_Click(object sender, RoutedEventArgs e)
         {
             string mac = MacInput.Text.Trim();
 
@@ -75,18 +76,25 @@ namespace SmartXDashboard
                 ProvisionedTimestamp = DateTime.Now
             };
 
-            // If a configuration metadata file was browsed and selected, attach its details
-            if (!string.IsNullOrEmpty(_selectedFilePath))
+            // 3. Post node to Web API over HTTP
+            bool isRegistered = await _apiClient.RegisterNodeAsync(newSensor);
+            if (!isRegistered)
             {
-                System.IO.FileInfo fileInfo = new System.IO.FileInfo(_selectedFilePath);
-                newSensor.ConfigFileName = fileInfo.Name;
-                newSensor.ConfigFileSizeKB = fileInfo.Length / 1024;
+                MessageBox.Show("Failed to register node with the API server. Please check your backend connection.", "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
 
-            // 3. Save node into local memory bus
-            SensorRepository.Instance.AddNode(newSensor);
+            // 4. Upload configuration metadata file via multipart/form-data if selected
+            if (!string.IsNullOrEmpty(_selectedFilePath))
+            {
+                bool isFileUploaded = await _apiClient.UploadMetadataFileAsync(mac, _selectedFilePath);
+                if (!isFileUploaded)
+                {
+                    MessageBox.Show("Node was registered, but the attached file failed to upload.", "Upload Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
 
-            // 4. Generate dynamic payload string & barcode image
+            // 5. Generate dynamic payload string & barcode image
             string selectedZoneText = (ZoneComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
             string selectedMetricText = (MetricComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
             string qrPayload = $"smartx://node?mac={mac}&zone={Uri.EscapeDataString(selectedZoneText)}&metric={Uri.EscapeDataString(selectedMetricText)}";
@@ -99,7 +107,7 @@ namespace SmartXDashboard
                 QrCodeImage.Visibility = Visibility.Visible;
             }
 
-            // 5. Update right panel dynamic overlay labels
+            // 6. Update right panel dynamic overlay labels
             NodeIdLabel.Text = $"NODE ID: {mac}";
             StatusLabel.Text = "Status: Provisioned & Active";
             StatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(39, 174, 96));

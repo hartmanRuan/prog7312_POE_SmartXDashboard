@@ -11,6 +11,11 @@
   <ItemGroup>
     <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
     <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartX.Api\SmartX.Api.csproj" />
   </ItemGroup>
 
 </Project>

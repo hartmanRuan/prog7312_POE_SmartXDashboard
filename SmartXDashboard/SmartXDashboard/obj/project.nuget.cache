@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "aAK3mPivJ1M=",
+  "dgSpecHash": "/4YB4pr2Aow=",
   "success": true,
   "projectFilePath": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SmartXDashboard.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,8 @@
     "C:\\Users\\emeris\\.nuget\\packages\\livechartscore\\2.0.5\\livechartscore.2.0.5.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\livechartscore.skiasharpview\\2.0.5\\livechartscore.skiasharpview.2.0.5.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\livechartscore.skiasharpview.wpf\\2.0.5\\livechartscore.skiasharpview.wpf.2.0.5.nupkg.sha512",
+    "C:\\Users\\emeris\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.12\\microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",
+    "C:\\Users\\emeris\\.nuget\\packages\\microsoft.openapi\\2.12.0\\microsoft.openapi.2.12.0.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\opentk\\3.3.1\\opentk.3.3.1.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\opentk.glwpfcontrol\\3.3.0\\opentk.glwpfcontrol.3.3.0.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\qrcoder\\1.8.0\\qrcoder.1.8.0.nupkg.sha512",
@@ -18,9 +20,25 @@
     "C:\\Users\\emeris\\.nuget\\packages\\skiasharp.nativeassets.macos\\3.119.0\\skiasharp.nativeassets.macos.3.119.0.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\skiasharp.nativeassets.win32\\3.119.0\\skiasharp.nativeassets.win32.3.119.0.nupkg.sha512",
     "C:\\Users\\emeris\\.nuget\\packages\\skiasharp.views.desktop.common\\3.119.0\\skiasharp.views.desktop.common.3.119.0.nupkg.sha512",
-    "C:\\Users\\emeris\\.nuget\\packages\\skiasharp.views.wpf\\3.119.0\\skiasharp.views.wpf.3.119.0.nupkg.sha512"
+    "C:\\Users\\emeris\\.nuget\\packages\\skiasharp.views.wpf\\3.119.0\\skiasharp.views.wpf.3.119.0.nupkg.sha512",
+    "C:\\Users\\emeris\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.2.3\\swashbuckle.aspnetcore.swagger.10.2.3.nupkg.sha512",
+    "C:\\Users\\emeris\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.2.3\\swashbuckle.aspnetcore.swaggergen.10.2.3.nupkg.sha512",
+    "C:\\Users\\emeris\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\10.2.3\\swashbuckle.aspnetcore.swaggerui.10.2.3.nupkg.sha512",
+    "C:\\Users\\emeris\\.nuget\\packages\\system.net.http.json\\10.0.12\\system.net.http.json.10.0.12.nupkg.sha512"
   ],
   "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Net.Http.Json will not be pruned. This package is automatically available and does not need to be referenced explicitly. Remove the PackageReference item.",
+      "projectPath": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SmartXDashboard.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SmartXDashboard.csproj",
+      "libraryId": "System.Net.Http.Json",
+      "targetGraphs": [
+        "net10.0-windows7.0"
+      ]
+    },
     {
       "code": "NU1701",
       "level": "Warning",
