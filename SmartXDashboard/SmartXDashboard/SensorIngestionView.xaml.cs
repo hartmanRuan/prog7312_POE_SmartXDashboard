@@ -3,96 +3,94 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using SmartXDashboard.Models;
-using SmartXDashboard.Services;
+using System.Windows.Media.Imaging;
+using QRCoder;
 
 namespace SmartXDashboard
 {
-    /// <summary>
-    /// Interaction logic for SensorIngestionView.xaml
-    /// </summary>
     public partial class SensorIngestionView : UserControl
     {
-        private string selectedFilePath = string.Empty;
-        private readonly ConfigFileParser _configParser = new ConfigFileParser();
-        private readonly BarcodeService _barcodeService = new BarcodeService();
+        private string _selectedFilePath = string.Empty;
 
         public SensorIngestionView()
         {
             InitializeComponent();
         }
 
-        private void BrowseConfigFile_Click(object sender, RoutedEventArgs e)
+        private void BrowseFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Title = "Select Sensor Configuration Metadata File",
-                Filter = "Config Files (*.json;*.txt;*.log)|*.json;*.txt;*.log|All Files (*.*)|*.*"
+                Filter = "Configuration Files (*.json;*.txt;*.log)|*.json;*.txt;*.log|All Files (*.*)|*.*"
             };
 
             if (openFileDialog.ShowDialog() == true)
             {
-                selectedFilePath = openFileDialog.FileName;
+                _selectedFilePath = openFileDialog.FileName;
+                FileInfo fileInfo = new FileInfo(_selectedFilePath);
 
-                // Parse configuration file metadata (Commit 5)
-                var configMetadata = _configParser.ParseFile(selectedFilePath);
-
-                FileNameLabel.Text = configMetadata.FileName;
-                FileNameLabel.Foreground = new SolidColorBrush(Colors.White);
-                FileSizeLabel.Text = $"Size: {configMetadata.FileSizeKB} KB ({configMetadata.PropertyCount} keys)";
+                FileNameText.Text = fileInfo.Name;
+                FileSizeText.Text = $"Size: {(fileInfo.Length / 1024.0):F1} KB";
+                FileNameText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
             }
         }
 
         private void RegisterSensor_Click(object sender, RoutedEventArgs e)
         {
-            string mac = MacAddressInput.Text.Trim();
+            string mac = MacInput.Text.Trim();
+            string selectedZone = (ZoneComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            string selectedMetric = (MetricComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
 
             if (string.IsNullOrWhiteSpace(mac))
             {
-                MessageBox.Show("Please enter a valid MAC address or Node ID.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please enter a valid MAC Address.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Map UI ComboBox selections to Enums safely
-            ZoneLocation zone = ZoneLocation.ZoneA_Environmental;
-            if (ZoneComboBox != null && ZoneComboBox.SelectedIndex >= 0)
+            // Generate payload string for QR Code
+            string qrPayload = $"smartx://node?mac={mac}&zone={Uri.EscapeDataString(selectedZone ?? "")}&metric={Uri.EscapeDataString(selectedMetric ?? "")}";
+
+            BitmapImage qrBitmap = GenerateQrCodeBitmap(qrPayload);
+            if (qrBitmap != null)
             {
-                zone = (ZoneLocation)ZoneComboBox.SelectedIndex;
+                QrCodeImage.Source = qrBitmap;
+                UnprovisionedPromptText.Visibility = Visibility.Collapsed;
+                QrCodeImage.Visibility = Visibility.Visible;
             }
 
-            SensorCategory category = SensorCategory.Environmental;
-            if (CategoryComboBox != null && CategoryComboBox.SelectedIndex >= 0)
+            // Update Right Side Status text
+            NodeIdLabel.Text = $"NODE ID: {mac}";
+            StatusLabel.Text = "Status: Provisioned & Active";
+            StatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(39, 174, 96));
+        }
+
+        private BitmapImage GenerateQrCodeBitmap(string payload)
+        {
+            try
             {
-                category = (SensorCategory)CategoryComboBox.SelectedIndex;
-            }
-
-            // Parse file metadata
-            var configMetadata = _configParser.ParseFile(selectedFilePath);
-
-            // Create model and register into memory repository (Commit 1 & 3)
-            SensorNode node = new SensorNode(mac, zone, category, configMetadata.FileName, configMetadata.FileSizeKB);
-            bool success = SensorRepository.Instance.RegisterNode(node);
-
-            if (success)
-            {
-                // Update Dynamic Engagement Panel Preview
-                GeneratedNodeIdText.Text = node.NodeId;
-                StatusTagText.Text = "Status: Provisioned & Active";
-                StatusTagText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#34C759"));
-
-                // Generate and render QR Barcode (Commit 6 & 7)
-                var barcodeImage = _barcodeService.GenerateBarcodeImage(node.MacAddress);
-                if (barcodeImage != null && BarcodePreviewImage != null)
+                using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
                 {
-                    BarcodePreviewImage.Source = barcodeImage;
-                }
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+                    using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+                    {
+                        byte[] qrCodeGraphic = qrCode.GetGraphic(20);
 
-                MessageBox.Show($"Sensor Node [{node.NodeId}] successfully registered in repository!", "Ingestion Pipeline", MessageBoxButton.OK, MessageBoxImage.Information);
+                        BitmapImage bitmap = new BitmapImage();
+                        using (MemoryStream stream = new MemoryStream(qrCodeGraphic))
+                        {
+                            bitmap.BeginInit();
+                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmap.StreamSource = stream;
+                            bitmap.EndInit();
+                        }
+                        return bitmap;
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show($"A node with MAC address [{mac}] already exists in the repository.", "Duplicate Node", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error generating QR code: {ex.Message}", "QR Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
             }
         }
     }

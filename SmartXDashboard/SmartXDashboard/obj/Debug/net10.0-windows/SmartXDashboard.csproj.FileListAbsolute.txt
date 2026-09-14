@@ -24,3 +24,6 @@ C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboar
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\obj\Debug\net10.0-windows\TelemetryStreamView.baml
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\obj\Debug\net10.0-windows\SensorIngestionView.g.cs
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\obj\Debug\net10.0-windows\TelemetryStreamView.g.cs
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\QRCoder.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\obj\Debug\net10.0-windows\SmartXDashboard.csproj.AssemblyReference.cache
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\obj\Debug\net10.0-windows\SmartXDa.9AA30E41.Up2Date

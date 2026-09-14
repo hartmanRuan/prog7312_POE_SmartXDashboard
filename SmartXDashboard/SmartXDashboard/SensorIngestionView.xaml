@@ -4,188 +4,101 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="550" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="#121212">
 
-    <UserControl.Resources>
-        <!-- Dark Input Field Style -->
-        <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#18181C"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="10,10,10,10"/>
-            <Setter Property="Margin" Value="0,4,0,12"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#2A2A32"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FFC700"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Dark ComboBox Style -->
-        <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="#18181C"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="10,8,10,8"/>
-            <Setter Property="Margin" Value="0,4,0,12"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#2A2A32"/>
-        </Style>
-
-        <!-- Primary Action Button (Red) -->
-        <Style x:Key="RedPrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#E50914"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="12,12,12,12"/>
-            <Setter Property="Margin" Value="0,10,0,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#B80710"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Secondary File Upload Button (Dark Slate with Yellow Border) -->
-        <Style x:Key="SecondaryUploadButton" TargetType="Button">
-            <Setter Property="Background" Value="#18181C"/>
-            <Setter Property="Foreground" Value="#FFC700"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="10,8,10,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" 
-                                BorderBrush="#FFC700" BorderThickness="1" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFC700"/>
-                                <Setter Property="Foreground" Value="#0E0E10"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
-
-    <Grid>
+    <Grid Margin="20">
         <Grid.ColumnDefinitions>
-            <!-- Left: Provisioning Form -->
             <ColumnDefinition Width="*"/>
-            <!-- Divider -->
-            <ColumnDefinition Width="1"/>
-            <!-- Right: Barcode & Engagement Preview Panel -->
             <ColumnDefinition Width="320"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT PANEL: REGISTRATION & CONFIG FILE FORM -->
-        <Grid Grid.Column="0" Margin="0,0,24,0">
-            <StackPanel VerticalAlignment="Top">
-                <TextBlock Text="PROVISION NEW SENSOR NODE" FontSize="14" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,16"/>
+        <!-- LEFT PANEL: FORM -->
+        <StackPanel Grid.Column="0" Margin="0,0,20,0">
+            <TextBlock Text="PROVISION NEW SENSOR NODE" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,20"/>
 
-                <!-- MAC Address Input -->
-                <TextBlock Text="SENSOR MAC ADDRESS / NODE ID" FontSize="10" Foreground="#FFC700" FontWeight="Bold"/>
-                <TextBox x:Name="MacAddressInput" Style="{StaticResource ModernTextBoxStyle}" Text="00:1A:2B:3C:4D:5E"/>
+            <!-- MAC ADDRESS -->
+            <TextBlock Text="SENSOR MAC ADDRESS / NODE ID" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
+            <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Margin="0,0,0,15">
+                <TextBox x:Name="MacInput" Text="00:1A:2B:3C:4D:5E" Background="Transparent" Foreground="#FFFFFF" 
+                         BorderThickness="0" Padding="10" FontSize="13" VerticalContentAlignment="Center"/>
+            </Border>
 
-                <!-- Location Zone Dropdown -->
-                <TextBlock Text="DEPLOYMENT LOCATION ZONE" FontSize="10" Foreground="#FFC700" FontWeight="Bold"/>
-                <ComboBox x:Name="ZoneComboBox" Style="{StaticResource ModernComboBoxStyle}" SelectedIndex="0">
-                    <ComboBoxItem Content="Zone A - Environmental Monitoring"/>
-                    <ComboBoxItem Content="Zone B - High-Voltage Power Grid"/>
-                    <ComboBoxItem Content="Zone C - Actuator &amp; Valve Control"/>
-                    <ComboBoxItem Content="Zone D - Ingestion Gateway Edge"/>
+            <!-- LOCATION ZONE -->
+            <TextBlock Text="DEPLOYMENT LOCATION ZONE" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
+            <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Margin="0,0,0,15">
+                <ComboBox x:Name="ZoneComboBox" SelectedIndex="0" Background="#181818" Foreground="#FFFFFF" 
+                          BorderThickness="0" Padding="8" FontSize="13">
+                    <ComboBoxItem Content="Zone A - Environmental Monitoring" Foreground="#000000" IsSelected="True"/>
+                    <ComboBoxItem Content="Zone B - Power Monitoring" Foreground="#000000"/>
+                    <ComboBoxItem Content="Zone C - Industrial Floor" Foreground="#000000"/>
                 </ComboBox>
+            </Border>
 
-                <!-- Sensor Category Dropdown -->
-                <TextBlock Text="TELEMETRY SENSOR CATEGORY" FontSize="10" Foreground="#FFC700" FontWeight="Bold"/>
-                <ComboBox x:Name="CategoryComboBox" Style="{StaticResource ModernComboBoxStyle}" SelectedIndex="0">
-                    <ComboBoxItem Content="Temperature / Humidity (Environmental)"/>
-                    <ComboBoxItem Content="Power / Current Load (Electrical)"/>
-                    <ComboBoxItem Content="Actuator Pulse Count (Mechanical)"/>
+            <!-- CATEGORY -->
+            <TextBlock Text="TELEMETRY SENSOR CATEGORY" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
+            <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Margin="0,0,0,15">
+                <ComboBox x:Name="MetricComboBox" SelectedIndex="0" Background="#181818" Foreground="#FFFFFF" 
+                          BorderThickness="0" Padding="8" FontSize="13">
+                    <ComboBoxItem Content="Temperature / Humidity (Environmental)" Foreground="#000000" IsSelected="True"/>
+                    <ComboBoxItem Content="Voltage / Current (Electrical)" Foreground="#000000"/>
+                    <ComboBoxItem Content="Pressure / Flow Rate (Hydraulic)" Foreground="#000000"/>
                 </ComboBox>
+            </Border>
 
-                <!-- Config File Uploader Section -->
-                <TextBlock Text="NODE CONFIGURATION METADATA FILE" FontSize="10" Foreground="#FFC700" FontWeight="Bold" Margin="0,4,0,4"/>
-                <Border Background="#18181C" BorderBrush="#2A2A32" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+            <!-- FILE SELECTOR -->
+            <TextBlock Text="NODE CONFIGURATION METADATA FILE" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
+            <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Padding="8" Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock x:Name="FileNameText" Text="No file selected (.json, .txt, .log)" Foreground="#888888" FontSize="12"/>
+                        <TextBlock x:Name="FileSizeText" Text="Size: -- KB" Foreground="#555555" FontSize="10"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="BROWSE..." Click="BrowseFile_Click" 
+                            Background="Transparent" Foreground="#FFC107" BorderBrush="#FFC107" BorderThickness="1" 
+                            Padding="12,6" FontWeight="Bold" FontSize="11" Cursor="Hand"/>
+                </Grid>
+            </Border>
 
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock x:Name="FileNameLabel" Text="No file selected (.json, .txt, .log)" FontSize="12" Foreground="#8A8A93"/>
-                            <TextBlock x:Name="FileSizeLabel" Text="Size: -- KB" FontSize="10" Foreground="#5A5A62" Margin="0,2,0,0"/>
-                        </StackPanel>
+            <!-- SUBMIT BUTTON -->
+            <Button Content="REGISTER NODE &amp; GENERATE BARCODE" Click="RegisterSensor_Click" 
+                    Background="#E50914" Foreground="#FFFFFF" FontWeight="Bold" FontSize="13" 
+                    Padding="14" BorderThickness="0" Cursor="Hand"/>
+        </StackPanel>
 
-                        <Button Grid.Column="1" Content="BROWSE..." Style="{StaticResource SecondaryUploadButton}" Click="BrowseConfigFile_Click"/>
+        <!-- RIGHT PANEL: DYNAMIC OVERLAY -->
+        <Border Grid.Column="1" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="15">
+            <StackPanel>
+                <TextBlock Text="DYNAMIC ENGAGEMENT OVERLAY" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+
+                <!-- QR CODE HOLDER CONTAINER -->
+                <Border Background="#222222" CornerRadius="4" Padding="15" Margin="0,0,0,15" MinHeight="180">
+                    <Grid x:Name="QrPlaceholderGrid">
+                        <!-- Shown BEFORE registration -->
+                        <TextBlock x:Name="UnprovisionedPromptText" Text="Click 'Register Node' to render barcode payload tag." 
+                                   Foreground="#666666" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+                        <!-- Hidden BEFORE registration, generated on submit -->
+                        <Image x:Name="QrCodeImage" Width="160" Height="160" Visibility="Collapsed"/>
                     </Grid>
                 </Border>
 
-                <!-- Submit Action -->
-                <Button Content="REGISTER NODE &amp; GENERATE BARCODE" Style="{StaticResource RedPrimaryButton}" Click="RegisterSensor_Click"/>
-            </StackPanel>
-        </Grid>
+                <TextBlock x:Name="NodeIdLabel" Text="NODE ID: UNPROVISIONED" FontSize="12" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="StatusLabel" Text="Status: Awaiting Registration" FontSize="11" Foreground="#888888" HorizontalAlignment="Center" Margin="0,2,0,20"/>
 
-        <!-- VERTICAL SEPARATOR LINE -->
-        <Rectangle Grid.Column="1" Fill="#2A2A32" VerticalAlignment="Stretch"/>
-
-        <!-- RIGHT PANEL: BARCODE & DYNAMIC ENGAGEMENT PREVIEW -->
-        <Grid Grid.Column="2" Margin="24,0,0,0">
-            <StackPanel VerticalAlignment="Top">
-                <TextBlock Text="DYNAMIC ENGAGEMENT OVERLAY" FontSize="14" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,16"/>
-
-                <Border Background="#18181C" BorderBrush="#2A2A32" BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel HorizontalAlignment="Center">
-                        <!-- Barcode Image Container -->
-                        <Border Background="#FFFFFF" Padding="12" CornerRadius="4" Margin="0,8,0,12" Width="220" Height="140">
-                            <Image x:Name="BarcodePreviewImage" Stretch="Uniform"/>
-                        </Border>
-
-                        <!-- Generated ID Tag Output -->
-                        <TextBlock x:Name="GeneratedNodeIdText" Text="NODE ID: UNPROVISIONED" FontSize="11" FontWeight="Bold" Foreground="#FFC700" HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="StatusTagText" Text="Status: Awaiting Registration" FontSize="11" Foreground="#8A8A93" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Background="#1C1C22" BorderBrush="#2A2A32" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,16,0,0">
+                <!-- PIPELINE NOTICE -->
+                <Border Background="#121212" CornerRadius="4" Padding="10" BorderBrush="#262626" BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="PIPELINE NOTICE" FontSize="10" FontWeight="Bold" Foreground="#E50914"/>
+                        <TextBlock Text="PIPELINE NOTICE" FontSize="10" FontWeight="Bold" Foreground="#E50914" Margin="0,0,0,4"/>
                         <TextBlock Text="Registering a node binds its MAC address to the local memory bus and generates a dynamic barcode key." 
-                                   FontSize="11" Foreground="#8A8A93" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16"/>
+                                   FontSize="10" Foreground="#777777" TextWrapping="Wrap" LineHeight="14"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
-        </Grid>
+        </Border>
     </Grid>
 </UserControl>
