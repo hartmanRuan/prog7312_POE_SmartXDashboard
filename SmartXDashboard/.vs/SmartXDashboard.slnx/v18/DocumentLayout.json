@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\services\\sensorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\services\\sensorrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\sensoringestionview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\sensoringestionview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\sensoringestionview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\sensoringestionview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\telemetrystreamview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\telemetrystreamview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\models\\sensornode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\models\\sensornode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\telemetrystreamview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\telemetrystreamview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\services\\telemetryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\services\\telemetryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\obj\\Debug\\net10.0-windows\\TelemetryStreamView.g.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SmartXDashboard\\obj\\Debug\\net10.0-windows\\TelemetryStreamView.g.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|c:\\users\\emeris\\desktop\\prog7312-poe\\prog7312_poe_smartxdashboard\\smartxdashboard\\smartxdashboard\\smartxdashboard.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{C6BB1543-EB64-1C98-92B3-F9CEAD3D27EC}|SmartXDashboard\\SmartXDashboard.csproj|solutionrelative:smartxdashboard\\smartxdashboard.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,53 +39,64 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "SensorRepository.cs",
-              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\SensorRepository.cs",
-              "RelativeDocumentMoniker": "SmartXDashboard\\Services\\SensorRepository.cs",
-              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\SensorRepository.cs",
-              "RelativeToolTip": "SmartXDashboard\\Services\\SensorRepository.cs",
-              "ViewState": "AgIAACsAAAAAbGZmZmYNwDQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-14T05:26:53.835Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SensorNode.cs",
-              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Models\\SensorNode.cs",
-              "RelativeDocumentMoniker": "SmartXDashboard\\Models\\SensorNode.cs",
-              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Models\\SensorNode.cs",
-              "RelativeToolTip": "SmartXDashboard\\Models\\SensorNode.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-14T05:21:06.768Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SensorIngestionView.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml.cs",
-              "RelativeDocumentMoniker": "SmartXDashboard\\SensorIngestionView.xaml.cs",
-              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml.cs",
-              "RelativeToolTip": "SmartXDashboard\\SensorIngestionView.xaml.cs",
-              "ViewState": "AgIAAEMAAAAAEGZmZmbmvzYAAAA3AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-14T05:18:28.729Z",
+              "Title": "SensorIngestionView.xaml",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml",
+              "RelativeDocumentMoniker": "SmartXDashboard\\SensorIngestionView.xaml",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SensorIngestionView.xaml",
+              "RelativeToolTip": "SmartXDashboard\\SensorIngestionView.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-09-14T06:15:55.048Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "TelemetryService.cs",
-              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\TelemetryService.cs",
-              "RelativeDocumentMoniker": "SmartXDashboard\\Services\\TelemetryService.cs",
-              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\Services\\TelemetryService.cs",
-              "RelativeToolTip": "SmartXDashboard\\Services\\TelemetryService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF0AAAABAAAAAAAAAA==",
+              "Title": "TelemetryStreamView.g.cs",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\obj\\Debug\\net10.0-windows\\TelemetryStreamView.g.cs",
+              "RelativeDocumentMoniker": "SmartXDashboard\\obj\\Debug\\net10.0-windows\\TelemetryStreamView.g.cs",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\obj\\Debug\\net10.0-windows\\TelemetryStreamView.g.cs",
+              "RelativeToolTip": "SmartXDashboard\\obj\\Debug\\net10.0-windows\\TelemetryStreamView.g.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-14T05:18:26.341Z",
+              "WhenOpened": "2026-09-14T05:52:23.252Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SmartXDashboard",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SmartXDashboard.csproj",
+              "RelativeDocumentMoniker": "SmartXDashboard\\SmartXDashboard.csproj",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\SmartXDashboard.csproj",
+              "RelativeToolTip": "SmartXDashboard\\SmartXDashboard.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-09-14T05:48:31.043Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TelemetryStreamView.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\TelemetryStreamView.xaml.cs",
+              "RelativeDocumentMoniker": "SmartXDashboard\\TelemetryStreamView.xaml.cs",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\TelemetryStreamView.xaml.cs",
+              "RelativeToolTip": "SmartXDashboard\\TelemetryStreamView.xaml.cs",
+              "ViewState": "AgIAAEEAAABAAgAAAAAewD8AAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-14T05:40:47.326Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TelemetryStreamView.xaml",
+              "DocumentMoniker": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\TelemetryStreamView.xaml",
+              "RelativeDocumentMoniker": "SmartXDashboard\\TelemetryStreamView.xaml",
+              "ToolTip": "C:\\Users\\emeris\\Desktop\\PROG7312-POE\\prog7312_POE_SmartXDashboard\\SmartXDashboard\\SmartXDashboard\\TelemetryStreamView.xaml",
+              "RelativeToolTip": "SmartXDashboard\\TelemetryStreamView.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-09-14T05:40:42.072Z",
               "EditorCaption": ""
             }
           ]

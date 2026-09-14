@@ -7,6 +7,104 @@
              d:DesignHeight="600" d:DesignWidth="900"
              Background="#121212">
 
+    <UserControl.Resources>
+        <!-- Toggle Button Template for ComboBox Header -->
+        <ControlTemplate x:Key="DarkComboBoxToggleButton" TargetType="ToggleButton">
+            <Border x:Name="templateRoot" Background="#181818" BorderBrush="#333333" BorderThickness="1" CornerRadius="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="30"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Arrow Icon -->
+                    <Path x:Name="arrow" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                          Data="M 0 0 L 4 4 L 8 0 Z" Fill="#FFFFFF"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="templateRoot" Property="BorderBrush" Value="#FFC107"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Dark ComboBox Main Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="#181818"/>
+            <Setter Property="BorderBrush" Value="#333333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid x:Name="templateRoot">
+                            <ToggleButton x:Name="toggleButton" 
+                                          Template="{StaticResource DarkComboBoxToggleButton}" 
+                                          Focusable="False" 
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                            <ContentPresenter x:Name="contentPresenter" 
+                                              Content="{TemplateBinding SelectionBoxItem}" 
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" 
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" 
+                                              Margin="{TemplateBinding Padding}" 
+                                              HorizontalAlignment="Left" 
+                                              VerticalAlignment="Center" 
+                                              IsHitTestVisible="False"/>
+
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" Grid.ColumnSpan="2" 
+                                   IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                   Margin="1" Placement="Bottom" PopupAnimation="Slide">
+                                <Border x:Name="dropDownBorder" Background="#181818" BorderBrush="#333333" BorderThickness="1" CornerRadius="4" MinWidth="{TemplateBinding ActualWidth}">
+                                    <ScrollViewer x:Name="DropDownScrollViewer">
+                                        <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
+                                            <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="0" VerticalAlignment="Top" Width="0">
+                                                <Rectangle x:Name="opaqueRect" Fill="#181818"/>
+                                            </Canvas>
+                                            <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dark ComboBoxItem Style (Fixes blue hover/selection highlight) -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#181818"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Mouse Hover -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2A2A2A"/>
+                                <Setter Property="Foreground" Value="#FFC107"/>
+                            </Trigger>
+                            <!-- Selected Item -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#252525"/>
+                                <Setter Property="Foreground" Value="#FFC107"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -21,30 +119,24 @@
             <TextBlock Text="SENSOR MAC ADDRESS / NODE ID" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
             <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Margin="0,0,0,15">
                 <TextBox x:Name="MacInput" Text="00:1A:2B:3C:4D:5E" Background="Transparent" Foreground="#FFFFFF" 
-                         BorderThickness="0" Padding="10" FontSize="13" VerticalContentAlignment="Center"/>
+                         BorderThickness="0" Padding="10" FontSize="13" VerticalContentAlignment="Center" IsReadOnly="False"/>
             </Border>
 
             <!-- LOCATION ZONE -->
             <TextBlock Text="DEPLOYMENT LOCATION ZONE" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
-            <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Margin="0,0,0,15">
-                <ComboBox x:Name="ZoneComboBox" SelectedIndex="0" Background="#181818" Foreground="#FFFFFF" 
-                          BorderThickness="0" Padding="8" FontSize="13">
-                    <ComboBoxItem Content="Zone A - Environmental Monitoring" Foreground="#000000" IsSelected="True"/>
-                    <ComboBoxItem Content="Zone B - Power Monitoring" Foreground="#000000"/>
-                    <ComboBoxItem Content="Zone C - Industrial Floor" Foreground="#000000"/>
-                </ComboBox>
-            </Border>
+            <ComboBox x:Name="ZoneComboBox" SelectedIndex="0" Margin="0,0,0,15">
+                <ComboBoxItem Content="Zone A - Environmental Monitoring"/>
+                <ComboBoxItem Content="Zone B - Power Monitoring"/>
+                <ComboBoxItem Content="Zone C - Industrial Floor"/>
+            </ComboBox>
 
             <!-- CATEGORY -->
             <TextBlock Text="TELEMETRY SENSOR CATEGORY" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>
-            <Border Background="#181818" CornerRadius="4" BorderBrush="#333333" BorderThickness="1" Margin="0,0,0,15">
-                <ComboBox x:Name="MetricComboBox" SelectedIndex="0" Background="#181818" Foreground="#FFFFFF" 
-                          BorderThickness="0" Padding="8" FontSize="13">
-                    <ComboBoxItem Content="Temperature / Humidity (Environmental)" Foreground="#000000" IsSelected="True"/>
-                    <ComboBoxItem Content="Voltage / Current (Electrical)" Foreground="#000000"/>
-                    <ComboBoxItem Content="Pressure / Flow Rate (Hydraulic)" Foreground="#000000"/>
-                </ComboBox>
-            </Border>
+            <ComboBox x:Name="MetricComboBox" SelectedIndex="0" Margin="0,0,0,15">
+                <ComboBoxItem Content="Temperature / Humidity (Environmental)"/>
+                <ComboBoxItem Content="Voltage / Current (Electrical)"/>
+                <ComboBoxItem Content="Pressure / Flow Rate (Hydraulic)"/>
+            </ComboBox>
 
             <!-- FILE SELECTOR -->
             <TextBlock Text="NODE CONFIGURATION METADATA FILE" FontSize="11" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,0,5"/>

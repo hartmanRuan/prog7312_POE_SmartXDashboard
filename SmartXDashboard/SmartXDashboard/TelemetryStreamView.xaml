@@ -4,156 +4,113 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="550" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="900"
+             Background="#121212">
 
-    <UserControl.Resources>
-        <!-- Dark Input Field Style -->
-        <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#18181C"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="8,8,8,8"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#2A2A32"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#FFC700"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Secondary Button Style -->
-        <Style x:Key="YellowActionButton" TargetType="Button">
-            <Setter Property="Background" Value="#18181C"/>
-            <Setter Property="Foreground" Value="#FFC700"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="12,8,12,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" 
-                                BorderBrush="#FFC700" BorderThickness="1" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFC700"/>
-                                <Setter Property="Foreground" Value="#0E0E10"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- DataGrid Dark Theme Styling -->
-        <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="#141418"/>
-            <Setter Property="RowBackground" Value="#18181C"/>
-            <Setter Property="AlternatingRowBackground" Value="#141418"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#2A2A32"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="#2A2A32"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="AutoGenerateColumns" Value="False"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
-
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#1C1C22"/>
-            <Setter Property="Foreground" Value="#FFC700"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="10,8,10,8"/>
-            <Setter Property="BorderBrush" Value="#2A2A32"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-        </Style>
-
-        <Style TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,8,10,8"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DataGridCell">
-                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
-                            <ContentPresenter VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#1E1E24"/>
-                    <Setter Property="Foreground" Value="#FFC700"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Resources>
-
-    <Grid>
+    <Grid Margin="20">
         <Grid.RowDefinitions>
-            <!-- Top Controls Header -->
             <RowDefinition Height="Auto"/>
-            <!-- Data Grid Stream -->
-            <RowDefinition Height="*"/>
+            <!-- Top Bar: Filter Dropdown -->
+            <RowDefinition Height="2*"/>
+            <!-- EXPANDED: Timeline Chart -->
+            <RowDefinition Height="5"/>
+            <!-- Separator Splitter -->
+            <RowDefinition Height="1*"/>
+            <!-- Bottom Half: Live Data Grid -->
         </Grid.RowDefinitions>
 
-        <!-- TOP CONTROLS BAR -->
-        <Grid Grid.Row="0" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!-- TOP BAR: NODE FILTER DROPDOWN -->
+        <Border Grid.Row="0" Background="#181818" CornerRadius="6" Padding="12,10" Margin="0,0,0,15" BorderBrush="#2A2A2A" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Search & Filter Inputs -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <StackPanel Width="220" Margin="0,0,12,0">
-                    <TextBlock Text="FILTER BY MAC / ID" FontSize="10" Foreground="#8A8A93" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <TextBox x:Name="SearchMacInput" Style="{StaticResource ModernTextBoxStyle}" TextChanged="SearchMacInput_TextChanged"/>
+                <TextBlock Grid.Column="0" Text="FILTER BY REGISTERED NODE:" VerticalAlignment="Center" 
+                           FontWeight="Bold" FontSize="11" Foreground="#FFC107" Margin="0,0,12,0"/>
+
+                <ComboBox x:Name="NodeFilterComboBox" Grid.Column="1" Padding="6" FontSize="12" 
+                          SelectionChanged="NodeFilterComboBox_SelectionChanged" Foreground="Black">
+                    <ComboBoxItem Content="All Registered Nodes" IsSelected="True" Foreground="Black"/>
+                </ComboBox>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="ActiveNodeStatusText" Text="Active Nodes: 0" Foreground="#888888" FontSize="11" FontWeight="SemiBold"/>
                 </StackPanel>
+            </Grid>
+        </Border>
 
-                <StackPanel Width="180">
-                    <TextBlock Text="STATUS SEVERITY" FontSize="10" Foreground="#8A8A93" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <ComboBox x:Name="StatusFilterComboBox" Height="32" Background="#18181C" Foreground="#FFFFFF" SelectionChanged="StatusFilterComboBox_SelectionChanged">
-                        <ComboBoxItem Content="All Streams" IsSelected="True"/>
-                        <ComboBoxItem Content="Normal"/>
-                        <ComboBoxItem Content="Warning"/>
-                        <ComboBoxItem Content="Critical"/>
-                    </ComboBox>
-                </StackPanel>
-            </StackPanel>
+        <!-- TOP HALF: LIVE TIMELINE GRAPH CONTAINER -->
+        <Border Grid.Row="1" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <!-- Simulation Action -->
-            <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                <Button Content="⚡ SIMULATE TELEMETRY PACKET" Style="{StaticResource YellowActionButton}" Click="SimulatePacket_Click"/>
-            </StackPanel>
-        </Grid>
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="LIVE TELEMETRY TIMELINE CHART" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                    <TextBlock x:Name="ChartSelectedNodeLabel" Text="Showing: All Registered Streams" 
+                               HorizontalAlignment="Right" FontSize="11" Foreground="#FFC107" FontWeight="SemiBold"/>
+                </Grid>
 
-        <!-- TELEMETRY STREAM DATA TABLE -->
-        <DataGrid x:Name="TelemetryGrid" Grid.Row="1">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="TIMESTAMP" Binding="{Binding Timestamp}" Width="150"/>
-                <DataGridTextColumn Header="NODE MAC ID" Binding="{Binding MacAddress}" Width="140"/>
-                <DataGridTextColumn Header="ZONE" Binding="{Binding Zone}" Width="120"/>
-                <DataGridTextColumn Header="READING VALUE" Binding="{Binding PayloadValue}" Width="120"/>
-                <DataGridTextColumn Header="METRIC" Binding="{Binding MetricType}" Width="120"/>
-                <DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+                <!-- CHART VIEW AREA -->
+                <Border Grid.Row="1" Background="#121212" CornerRadius="4" BorderBrush="#222222" BorderThickness="1" Padding="10">
+                    <Grid x:Name="ChartContainer" MinHeight="320">
+                        <TextBlock x:Name="EmptyChartPrompt" Text="Awaiting telemetry data stream..." 
+                                   Foreground="#555555" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                        <!-- Chart instance is injected dynamically from TelemetryStreamView.xaml.cs -->
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- HORIZONTAL SPLITTER -->
+        <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch" Background="#2A2A2A" Margin="0,2"/>
+
+        <!-- BOTTOM HALF: LIVE READINGS TABLE -->
+        <Border Grid.Row="3" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="15" Margin="0,10,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="LIVE INCOMING TELEMETRY LOGS" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,10"/>
+
+                <!-- REAL-TIME DATA GRID -->
+                <DataGrid x:Name="TelemetryDataGrid" Grid.Row="1" AutoGenerateColumns="False" 
+                          CanUserAddRows="False" IsReadOnly="True" Background="#121212" 
+                          RowBackground="#1E1E1E" AlternatingRowBackground="#181818" 
+                          Foreground="#FFFFFF" GridLinesVisibility="Horizontal" 
+                          HorizontalGridLinesBrush="#2A2A2A" HeadersVisibility="Column" BorderThickness="0">
+
+                    <!-- Custom Dark Column Header Style -->
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#252525"/>
+                            <Setter Property="Foreground" Value="#FFC107"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                            <Setter Property="BorderBrush" Value="#333333"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat=\{0:HH:mm:ss\}}" Width="1.2*"/>
+                        <DataGridTextColumn Header="MAC / Node ID" Binding="{Binding NodeMacAddress}" Width="2*"/>
+                        <DataGridTextColumn Header="Zone" Binding="{Binding LocationZone}" Width="1.8*"/>
+                        <DataGridTextColumn Header="Payload Value" Binding="{Binding PayloadValue, StringFormat=\{0:F2\}}" Width="1.5*"/>
+                        <DataGridTextColumn Header="Unit" Binding="{Binding MetricUnit}" Width="1*"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="1.2*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

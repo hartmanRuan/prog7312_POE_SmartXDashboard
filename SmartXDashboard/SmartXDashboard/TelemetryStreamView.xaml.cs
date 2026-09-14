@@ -1,140 +1,163 @@
-﻿using Microsoft.Win32;
+﻿using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
+using SmartXDashboard.Models;
+using SmartXDashboard.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using SmartXDashboard.Models;
-using SmartXDashboard.Services;
+using System.Windows.Media;
 
 namespace SmartXDashboard
 {
     public partial class TelemetryStreamView : UserControl
     {
         private readonly TelemetrySimulator _simulator;
-        private readonly ExportService _exportService = new ExportService();
+        private readonly ObservableCollection<TelemetryPacket<double>> _telemetryLog = new ObservableCollection<TelemetryPacket<double>>();
+        private readonly ObservableCollection<double> _chartValues = new ObservableCollection<double>();
+        private string _selectedMacFilter = "ALL";
 
-        // Internal master buffer for keeping all received packets
-        private readonly ObservableCollection<TelemetryPacket<double>> _allPackets
-            = new ObservableCollection<TelemetryPacket<double>>();
-
-        // Public collection bound to the TelemetryGrid
-        public ObservableCollection<TelemetryPacket<double>> TelemetryStream { get; set; }
-            = new ObservableCollection<TelemetryPacket<double>>();
+        public ISeries[] ChartSeries { get; set; }
+        public Axis[] XAxes { get; set; }
+        public Axis[] YAxes { get; set; }
 
         public TelemetryStreamView()
         {
             InitializeComponent();
+            DataContext = this;
 
-            if (TelemetryGrid != null)
+            TelemetryDataGrid.ItemsSource = _telemetryLog;
+
+            // Initialize LiveCharts2 Series with #FFC107 Gold Line styling
+            ChartSeries = new ISeries[]
             {
-                TelemetryGrid.ItemsSource = TelemetryStream;
-            }
+        new LineSeries<double>
+        {
+            Values = _chartValues,
+            Fill = null,
+            Stroke = new SolidColorPaint(SKColor.Parse("#FFC107")) { StrokeThickness = 2 },
+            GeometrySize = 6,
+            GeometryStroke = new SolidColorPaint(SKColor.Parse("#FFC107")),
+            GeometryFill = new SolidColorPaint(SKColor.Parse("#181818"))
+        }
+            };
 
-            // Initialize simulator (fires every 1.5s)
-            _simulator = new TelemetrySimulator(1500);
+            XAxes = new Axis[]
+            {
+        new Axis
+        {
+            LabelsPaint = new SolidColorPaint(SKColors.Gray),
+            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#222222"))
+        }
+            };
+
+            YAxes = new Axis[]
+            {
+        new Axis
+        {
+            LabelsPaint = new SolidColorPaint(SKColors.Gray),
+            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#222222"))
+        }
+            };
+
+            // Instantiate chart directly in C# to eliminate XAML designer namespace errors
+            var cartesianChart = new LiveChartsCore.SkiaSharpView.WPF.CartesianChart
+            {
+                Series = ChartSeries,
+                XAxes = XAxes,
+                YAxes = YAxes,
+                LegendPosition = LiveChartsCore.Measure.LegendPosition.Hidden
+            };
+
+            ChartContainer.Children.Add(cartesianChart);
+
+            _simulator = new TelemetrySimulator();
             _simulator.OnTelemetryReceived += Simulator_OnTelemetryReceived;
 
-            // Manage background timer thread with view lifecycle
-            Loaded += (s, e) => _simulator.Start();
-            Unloaded += (s, e) => _simulator.Stop();
+            Loaded += TelemetryStreamView_Loaded;
+            Unloaded += TelemetryStreamView_Unloaded;
+        }
+
+        private void TelemetryStreamView_Loaded(object sender, RoutedEventArgs e)
+        {
+            PopulateNodeFilterDropdown();
+            _simulator.Start();
+        }
+
+        private void TelemetryStreamView_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _simulator.Stop();
+        }
+
+        private void PopulateNodeFilterDropdown()
+        {
+            NodeFilterComboBox.Items.Clear();
+
+            ComboBoxItem allItem = new ComboBoxItem { Content = "All Registered Nodes", Tag = "ALL", Foreground = System.Windows.Media.Brushes.Black, IsSelected = true };
+            NodeFilterComboBox.Items.Add(allItem);
+
+            var registeredNodes = SensorRepository.Instance.GetAllNodes().ToList();
+            ActiveNodeStatusText.Text = $"Active Nodes: {registeredNodes.Count}";
+
+            foreach (var node in registeredNodes)
+            {
+                ComboBoxItem item = new ComboBoxItem
+                {
+                    Content = $"{node.MacAddress} ({node.LocationZone})",
+                    Tag = node.MacAddress,
+                    Foreground = System.Windows.Media.Brushes.Black
+                };
+                NodeFilterComboBox.Items.Add(item);
+            }
+        }
+
+        private void NodeFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (NodeFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                _selectedMacFilter = selectedItem.Tag?.ToString() ?? "ALL";
+
+                // Null guard prevents crash during initial component setup
+                if (ChartSelectedNodeLabel != null)
+                {
+                    ChartSelectedNodeLabel.Text = _selectedMacFilter == "ALL"
+                        ? "Showing: All Registered Streams"
+                        : $"Showing Filtered: {_selectedMacFilter}";
+                }
+
+                _telemetryLog.Clear();
+                _chartValues.Clear();
+            }
         }
 
         private void Simulator_OnTelemetryReceived(TelemetryPacket<double> packet)
         {
-            // Marshal thread execution to WPF UI Thread
             Dispatcher.Invoke(() =>
             {
-                // Cap master buffer at 100 items for performance
-                if (_allPackets.Count >= 100)
+                if (EmptyChartPrompt != null && EmptyChartPrompt.Visibility == Visibility.Visible)
                 {
-                    _allPackets.RemoveAt(_allPackets.Count - 1);
+                    EmptyChartPrompt.Visibility = Visibility.Collapsed;
                 }
 
-                _allPackets.Insert(0, packet);
-                ApplyFilters();
+                if (_selectedMacFilter == "ALL" || packet.MacAddress == _selectedMacFilter)
+                {
+                    _telemetryLog.Insert(0, packet);
+                    if (_telemetryLog.Count > 100)
+                    {
+                        _telemetryLog.RemoveAt(_telemetryLog.Count - 1);
+                    }
+
+                    // Push value to live timeline chart
+                    _chartValues.Add(packet.PayloadValue);
+                    if (_chartValues.Count > 20)
+                    {
+                        _chartValues.RemoveAt(0);
+                    }
+                }
             });
-        }
-
-        private void SearchMacInput_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
-        private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
-        private void ApplyFilters()
-        {
-            if (TelemetryGrid == null) return;
-
-            string filterText = SearchMacInput?.Text.Trim().ToLower() ?? string.Empty;
-            string selectedStatus = (StatusFilterComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "All Streams";
-
-            // LINQ filtering on MAC Address and NodeStatus severity
-            var filtered = _allPackets.Where(packet =>
-            {
-                bool matchesMac = string.IsNullOrEmpty(filterText) ||
-                                  packet.MacAddress.ToLower().Contains(filterText);
-
-                bool matchesStatus = selectedStatus switch
-                {
-                    "Active" or "Normal" => packet.SeverityStatus == NodeStatus.Active,
-                    "Warning" => packet.SeverityStatus == NodeStatus.Warning,
-                    "Critical" => packet.SeverityStatus == NodeStatus.Critical,
-                    _ => true
-                };
-
-                return matchesMac && matchesStatus;
-            }).ToList();
-
-            // Refresh UI stream collection
-            TelemetryStream.Clear();
-            foreach (var item in filtered)
-            {
-                TelemetryStream.Add(item);
-            }
-        }
-
-        private void SimulatePacket_Click(object sender, RoutedEventArgs e)
-        {
-            Random rand = new Random();
-            var packet = new TelemetryPacket<double>(
-                "00:1A:2B:3C:4D:5E",
-                ZoneLocation.ZoneA_Environmental,
-                Math.Round(rand.Next(200, 900) / 10.0, 1),
-                "°C",
-                rand.Next(0, 2) == 0 ? NodeStatus.Active : NodeStatus.Warning
-            );
-
-            _allPackets.Insert(0, packet);
-            ApplyFilters();
-        }
-
-        // Export button handler linked to SaveFileDialog
-        private void ExportCsv_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
-            {
-                Filter = "CSV File (*.csv)|*.csv|All Files (*.*)|*.*",
-                FileName = $"TelemetryExport_{DateTime.Now:yyyyMMdd_HHmmss}.csv"
-            };
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                bool success = _exportService.ExportTelemetryToCsv(TelemetryStream, saveFileDialog.FileName);
-
-                if (success)
-                {
-                    MessageBox.Show("Telemetry stream data successfully exported to CSV!", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Failed to export telemetry data to CSV.", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
         }
     }
 }
