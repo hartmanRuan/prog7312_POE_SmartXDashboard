@@ -13,30 +13,24 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Status / Warning Banner -->
-            <RowDefinition Height="Auto"/>
-            <!-- Top Bar: Filter Dropdown -->
+            <!-- Top Bar: Filter Dropdown & Persistent Barcode Panel -->
+            <RowDefinition Height="130"/>
+            <!-- Spike History Log -->
             <RowDefinition Height="*"/>
-            <!-- EXPANDED: Timeline Chart filling remaining space -->
+            <!-- EXPANDED: Timeline Chart -->
         </Grid.RowDefinitions>
 
-        <!-- THRESHOLD WARNING BANNER -->
-        <Border x:Name="WarningBanner" Grid.Row="0" Background="#1E3A1E" CornerRadius="6" Padding="12,10" Margin="0,0,0,12" BorderBrush="#2D5A2D" BorderThickness="1">
-            <TextBlock x:Name="WarningText" Text="STATUS: NORMAL - All telemetry streams within safe operating thresholds" 
-                       Foreground="#4CAF50" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center"/>
-        </Border>
-
-        <!-- TOP BAR: NODE FILTER DROPDOWN -->
-        <Border Grid.Row="1" Background="#181818" CornerRadius="6" Padding="12,10" Margin="0,0,0,15" BorderBrush="#2A2A2A" BorderThickness="1">
+        <!-- TOP BAR: NODE FILTER DROPDOWN & PERSISTENT SESSION BARCODE -->
+        <Border Grid.Row="0" Background="#181818" CornerRadius="6" Padding="12,10" Margin="0,0,0,12" BorderBrush="#2A2A2A" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="FILTER BY REGISTERED NODE:" VerticalAlignment="Center" 
+                <TextBlock Grid.Column="0" Text="REGISTERED NODE:" VerticalAlignment="Center" 
                            FontWeight="Bold" FontSize="11" Foreground="#FFC107" Margin="0,0,12,0"/>
 
                 <ComboBox x:Name="NodeFilterComboBox" Grid.Column="1" Padding="6" FontSize="12" 
@@ -44,9 +38,44 @@
                     <ComboBoxItem Content="All Registered Nodes" IsSelected="True" Foreground="Black"/>
                 </ComboBox>
 
-                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="ActiveNodeStatusText" Text="Active Nodes: 0" Foreground="#888888" FontSize="11" FontWeight="SemiBold"/>
+                <!-- Persistent Session Barcode / Identifier Display -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <Border Background="#222222" CornerRadius="4" Padding="8,4" BorderBrush="#333333" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="SESSION BARCODE: " Foreground="#888888" FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SessionBarcodeText" Text="NODE-MAC-LOC-01-SECURE" Foreground="#4CAF50" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="ActiveNodeStatusText" Text="Active Nodes: 1/1 Max" Foreground="#888888" FontSize="11" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- SPIKE HISTORY LOG -->
+        <Border Grid.Row="1" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="THRESHOLD SPIKE HISTORY (°C)" FontSize="11" FontWeight="Bold" Foreground="#FF5252" Margin="0,0,0,6"/>
+                <ListBox Grid.Row="1" ItemsSource="{Binding SpikeHistory}" Background="#121212" BorderBrush="#222222" Foreground="#FFFFFF" FontSize="11">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="2">
+                                <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Foreground="#888888" Margin="0,0,15,0"/>
+                                <TextBlock Text="Node:" Foreground="#AAAAAA" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding MacAddress}" FontWeight="Bold" Foreground="#FFC107" Margin="0,0,15,0"/>
+                                <TextBlock Text="Value:" Foreground="#AAAAAA" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding Value, StringFormat={}{0:F2}}" Foreground="#FF5252" FontWeight="Bold" Margin="0,0,2,0"/>
+                                <TextBlock Text="{Binding Unit}" Foreground="#FF5252"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
         </Border>
 
@@ -59,8 +88,8 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,10">
-                    <TextBlock Text="LIVE TELEMETRY TIMELINE CHART &amp; THRESHOLDS" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
-                    <TextBlock x:Name="ChartSelectedNodeLabel" Text="Showing: All Registered Streams" 
+                    <TextBlock Text="LIVE TELEMETRY TIMELINE CHART (°C) &amp; THRESHOLDS" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                    <TextBlock x:Name="ChartSelectedNodeLabel" Text="Showing: Locked Single Node Stream" 
                                HorizontalAlignment="Right" FontSize="11" Foreground="#FFC107" FontWeight="SemiBold"/>
                 </Grid>
 

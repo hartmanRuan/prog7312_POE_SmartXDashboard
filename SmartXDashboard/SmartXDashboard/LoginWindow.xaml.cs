@@ -37,44 +37,60 @@ namespace SmartXDashboard
             RegisterForm.Visibility = Visibility.Visible;
         }
 
-        private async void LoginSubmit_Click(object sender, RoutedEventArgs e)
+        private static readonly Dictionary<string, string> MockUserDatabase = new Dictionary<string, string>();
+
+        private void LoginSubmit_Click(object sender, RoutedEventArgs e)
         {
-            try
+            string username = LoginUsernameInput.Text;
+            string password = LoginPasswordInput.Password;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                var loginData = new { Username = LoginUsernameInput.Text, Password = LoginPasswordInput.Password };
-
-                // Option B manual serialization (or PostAsJsonAsync if package is installed)
-                var jsonPayload = System.Text.Json.JsonSerializer.Serialize(loginData);
-                var content = new System.Net.Http.StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync("api/auth/login", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var mainWindow = new MainWindow();
-                    mainWindow.Show();
-                    this.Close();
-                }
-                else
-                {
-                    MessageBox.Show("Access Denied: Invalid credentials.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                MessageBox.Show("Please enter both username and password.");
+                return;
             }
-            catch (System.Exception ex)
+
+            if (MockUserDatabase.ContainsKey(username) && MockUserDatabase[username] == password)
             {
-                MessageBox.Show($"Connection failed: Ensure the API server is running.\n\nDetails: {ex.Message}", "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var dashboard = new MainWindow();
+                dashboard.Show();
+                this.Close();
+            }
+            else
+            {
+                MessageBox.Show("Invalid username or password.");
             }
         }
 
         private void SignupSubmit_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(SignupEmailInput.Text) || string.IsNullOrWhiteSpace(SignupPasswordInput.Password))
+            string username = SignupEmailInput.Text;
+            string password = SignupPasswordInput.Password;
+            string confirmPassword = SignupPasswordInput.Password;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                MessageBox.Show("Please complete all registration fields.", "Provisioning Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please fill in all fields.");
                 return;
             }
 
-            OpenMainWindow();
+            if (password != confirmPassword)
+            {
+                MessageBox.Show("Passwords do not match.");
+                return;
+            }
+
+            if (MockUserDatabase.ContainsKey(username))
+            {
+                MessageBox.Show("Username already exists.");
+                return;
+            }
+
+            MockUserDatabase[username] = password;
+            MessageBox.Show("Registration successful! You can now log in.");
+            LoginForm.Visibility = Visibility.Visible;
+            RegisterForm.Visibility = Visibility.Collapsed;
+            
         }
 
         private void OpenMainWindow()

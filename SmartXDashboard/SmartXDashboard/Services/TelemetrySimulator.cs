@@ -11,21 +11,27 @@ namespace SmartXDashboard.Services
         private System.Threading.Timer? _timer;
         private readonly TelemetryApiClient _apiClient = new();
         private readonly Random _random = new();
+        private int _tickCounter = 0;
 
         public void Start()
         {
-            //MessageBox.Show("Simulator Start() called!"); // Check if Start is hit
-
             _timer = new System.Threading.Timer(async _ =>
             {
-                //MessageBox.Show("Timer tick fired!"); // Check if the timer is ticking
-
                 try
                 {
+                    _tickCounter++;
+                    double payload = Math.Round(20.0 + (_random.NextDouble() * 15.0), 2);
+
+                    // Inject a clear spike over the 85.0 threshold every 5th tick
+                    if (_tickCounter % 5 == 0)
+                    {
+                        payload = 95.0; // Force it well above the 85.0 threshold for testing
+                    }
+
                     var packet = new TelemetryPacket<double>
                     {
                         MacAddress = "00:1A:2B:3C:4D:5E",
-                        PayloadValue = Math.Round(20.0 + (_random.NextDouble() * 15.0), 2),
+                        PayloadValue = payload,
                         Timestamp = DateTime.Now,
                         LocationZone = ZoneLocation.ZoneA_Environmental,
                         MetricUnit = "°C",

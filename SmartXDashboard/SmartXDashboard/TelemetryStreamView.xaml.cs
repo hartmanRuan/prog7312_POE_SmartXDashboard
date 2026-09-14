@@ -6,6 +6,7 @@ using SmartX.Api.Models;
 using SmartXDashboard.Models;
 using SmartXDashboard.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,30 +22,42 @@ namespace SmartXDashboard
         private readonly DispatcherTimer _pollTimer = new();
         private readonly ObservableCollection<SmartX.Api.Models.TelemetryPacket<double>> _telemetryLog = new();
         private readonly ObservableCollection<LiveChartsCore.Defaults.ObservableValue> _chartValues = new();
+        private readonly Dictionary<string, bool> _nodeInSpikeState = new();
+
+        public ObservableCollection<SpikeRecord> SpikeHistory { get; set; } = new();
 
         public ISeries[] Series { get; set; }
         private string _selectedMacFilter = "ALL";
-
-        
+        private bool _isNodeRegistered = false;
 
         public TelemetryStreamView()
         {
             InitializeComponent();
-            Series = new ISeries[]
-{
-    new LineSeries<LiveChartsCore.Defaults.ObservableValue>
-    {
-        Values = _chartValues,
-        Fill = null,
-        LineSmoothness = 0
-    }
-};
-            DataContext = this;
-            // 1. Hook up the DataGrid to your telemetry log collection
-            /*if (TelemetryDataGrid != null)
+
+            var lineSeries = new LineSeries<LiveChartsCore.Defaults.ObservableValue>
             {
-                TelemetryDataGrid.ItemsSource = _telemetryLog;
-            }*/
+                Values = _chartValues,
+                Fill = null,
+                LineSmoothness = 0,
+                GeometrySize = 10
+            };
+
+            lineSeries.PointMeasured += point =>
+            {
+                if (point.Context.Visual is null) return;
+
+                if (point.Coordinate.PrimaryValue > UpperThreshold || point.Coordinate.PrimaryValue < LowerThreshold)
+                {
+                    point.Context.Visual.Fill = new SolidColorPaint(SKColors.Red);
+                }
+                else
+                {
+                    point.Context.Visual.Fill = new SolidColorPaint(SKColors.Blue);
+                }
+            };
+
+            Series = new ISeries[] { lineSeries };
+            DataContext = this;
         }
 
         private async void TelemetryStreamView_Loaded(object sender, RoutedEventArgs e)
@@ -53,7 +66,6 @@ namespace SmartXDashboard
             {
                 await PopulateNodeFilterDropdownAsync();
 
-                // 1-second polling loop
                 _pollTimer.Interval = TimeSpan.FromSeconds(1);
                 _pollTimer.Tick += async (s, args) => await FetchLatestTelemetryAsync();
                 _pollTimer.Start();
@@ -98,14 +110,13 @@ namespace SmartXDashboard
                         MacAddress = packet.MacAddress,
                         LocationZone = (SmartXDashboard.Models.ZoneLocation)packet.LocationZone,
                         PayloadValue = Convert.ToDouble(packet.PayloadValue),
-                        MetricUnit = packet.MetricUnit,
+                        MetricUnit = "°C", // Locked strictly to Degree Celsius
                         SeverityStatus = packet.SeverityStatus
                     };
 
                     _chartValues.Add(new LiveChartsCore.Defaults.ObservableValue(localPacket.PayloadValue));
                     ProcessIncomingPacket(localPacket);
                 }
-
             }
             catch (Exception ex)
             {
@@ -141,6 +152,13 @@ namespace SmartXDashboard
                 {
                     ActiveNodeStatusText.Text = $"Active Nodes: {registeredNodes.Count}";
 
+                    // Enforce 1-node registration limit per user session
+                    if (registeredNodes.Count >= 1)
+                    {
+                        _isNodeRegistered = true;
+                        // Lock registration UI or flag here if a registration button exists
+                    }
+
                     foreach (var node in registeredNodes)
                     {
                         ComboBoxItem item = new ComboBoxItem
@@ -171,11 +189,10 @@ namespace SmartXDashboard
 
                 if (content == "All Registered Nodes" || string.IsNullOrEmpty(content))
                 {
-                    _selectedMacFilter = null; // Pass null so API fetches all nodes
+                    _selectedMacFilter = null;
                 }
                 else
                 {
-                    // If you store the MAC address in the Tag property or use the content string
                     _selectedMacFilter = selectedItem.Tag?.ToString() ?? content;
                 }
             }
@@ -184,82 +201,73 @@ namespace SmartXDashboard
                 _selectedMacFilter = mac == "All Registered Nodes" ? null : mac;
             }
 
-            // Optional: Trigger an immediate fetch so you don't wait for the next timer tick
             _ = FetchLatestTelemetryAsync();
         }
+
         public Axis[] XAxes { get; set; } = new Axis[]
-{
-    new Axis
-    {
-        Name = "Time / Index",
-        LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
-        NamePaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
-        TextSize = 12,
-        MinStep = 1
-    }
-};
+        {
+            new Axis
+            {
+                Name = "Time / Index",
+                LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+                NamePaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+                TextSize = 12,
+                MinStep = 1
+            }
+        };
 
         public Axis[] YAxes { get; set; } = new Axis[]
         {
-    new Axis
-    {
-        Name = "Payload Value",
-        LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
-        NamePaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
-        TextSize = 12
-    }
+            new Axis
+            {
+                Name = "Temperature (°C)",
+                LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+                NamePaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+                TextSize = 12
+            }
         };
-
-
 
         private const double UpperThreshold = 85.0;
         private const double LowerThreshold = 10.0;
 
         private void ProcessIncomingPacket(SmartXDashboard.Models.TelemetryPacket<double> packet)
         {
-            if (packet.PayloadValue > UpperThreshold || packet.PayloadValue < LowerThreshold)
+            bool isViolation = packet.PayloadValue > UpperThreshold || packet.PayloadValue < LowerThreshold;
+
+            if (!_nodeInSpikeState.ContainsKey(packet.MacAddress))
             {
-                Dispatcher.Invoke(() =>
+                _nodeInSpikeState[packet.MacAddress] = false;
+            }
+
+            if (isViolation)
+            {
+                if (!_nodeInSpikeState[packet.MacAddress])
                 {
-                    WarningBanner.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3A1E1E"));
-                    WarningText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF5252"));
-                    WarningText.Text = $"WARNING: Node [{packet.MacAddress}] out of range! Value: {packet.PayloadValue:F2} {packet.MetricUnit}";
-                });
+                    _nodeInSpikeState[packet.MacAddress] = true;
+                    Dispatcher.Invoke(() =>
+                    {
+                        SpikeHistory.Insert(0, new SpikeRecord
+                        {
+                            Timestamp = packet.Timestamp,
+                            MacAddress = packet.MacAddress,
+                            Value = packet.PayloadValue,
+                            Unit = "°C"
+                        });
+                    });
+                }
             }
             else
             {
-                Dispatcher.Invoke(() =>
-                {
-                    WarningBanner.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E3A1E"));
-                    WarningText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
-                    WarningText.Text = "STATUS: NORMAL - All telemetry streams within safe operating thresholds";
-                });
+                _nodeInSpikeState[packet.MacAddress] = false;
             }
         }
-
-        private void TriggerWarning(string message)
-        {
-            // Execute on UI thread if called from background thread
-            Dispatcher.Invoke(() =>
-            {
-                WarningBanner.Background = System.Windows.Media.Brushes.Red;
-                WarningText.Text = message;
-            });
-        }
-
-        private void ClearWarning()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                WarningBanner.Background = System.Windows.Media.Brushes.ForestGreen;
-                WarningText.Text = "Status: Normal";
-            });
-        }
-
-
-
-
     }
 
-
+    public class SpikeRecord
+    {
+        public DateTime Timestamp { get; set; }
+        public string MacAddress { get; set; }
+        public double Value { get; set; }
+        public string Unit { get; set; }
+    }
 }
