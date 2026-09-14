@@ -13,17 +13,21 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- Status / Warning Banner -->
+            <RowDefinition Height="Auto"/>
             <!-- Top Bar: Filter Dropdown -->
-            <RowDefinition Height="2*"/>
-            <!-- EXPANDED: Timeline Chart -->
-            <RowDefinition Height="5"/>
-            <!-- Separator Splitter -->
-            <RowDefinition Height="1*"/>
-            <!-- Bottom Half: Live Data Grid -->
+            <RowDefinition Height="*"/>
+            <!-- EXPANDED: Timeline Chart filling remaining space -->
         </Grid.RowDefinitions>
 
+        <!-- THRESHOLD WARNING BANNER -->
+        <Border x:Name="WarningBanner" Grid.Row="0" Background="#1E3A1E" CornerRadius="6" Padding="12,10" Margin="0,0,0,12" BorderBrush="#2D5A2D" BorderThickness="1">
+            <TextBlock x:Name="WarningText" Text="STATUS: NORMAL - All telemetry streams within safe operating thresholds" 
+                       Foreground="#4CAF50" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center"/>
+        </Border>
+
         <!-- TOP BAR: NODE FILTER DROPDOWN -->
-        <Border Grid.Row="0" Background="#181818" CornerRadius="6" Padding="12,10" Margin="0,0,0,15" BorderBrush="#2A2A2A" BorderThickness="1">
+        <Border Grid.Row="1" Background="#181818" CornerRadius="6" Padding="12,10" Margin="0,0,0,15" BorderBrush="#2A2A2A" BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -46,8 +50,8 @@
             </Grid>
         </Border>
 
-        <!-- TOP HALF: LIVE TIMELINE GRAPH CONTAINER -->
-        <Border Grid.Row="1" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="15" Margin="0,0,0,10">
+        <!-- EXPANDED LIVE TIMELINE GRAPH CONTAINER -->
+        <Border Grid.Row="2" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="15">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -55,14 +59,14 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,10">
-                    <TextBlock Text="LIVE TELEMETRY TIMELINE CHART" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                    <TextBlock Text="LIVE TELEMETRY TIMELINE CHART &amp; THRESHOLDS" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
                     <TextBlock x:Name="ChartSelectedNodeLabel" Text="Showing: All Registered Streams" 
                                HorizontalAlignment="Right" FontSize="11" Foreground="#FFC107" FontWeight="SemiBold"/>
                 </Grid>
 
                 <!-- CHART VIEW AREA -->
                 <Border Grid.Row="1" Background="#121212" CornerRadius="4" BorderBrush="#222222" BorderThickness="1" Padding="10">
-                    <Grid x:Name="ChartContainer" MinHeight="320">
+                    <Grid x:Name="ChartContainer">
                         <TextBlock x:Name="EmptyChartPrompt" Text="Awaiting telemetry data stream..." 
                                    Foreground="#555555" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"
                                    Panel.ZIndex="1"/>
@@ -71,50 +75,6 @@
                         <lvc:CartesianChart Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" />
                     </Grid>
                 </Border>
-            </Grid>
-        </Border>
-
-        <!-- HORIZONTAL SPLITTER -->
-        <GridSplitter Grid.Row="2" Height="3" HorizontalAlignment="Stretch" Background="#2A2A2A" Margin="0,2"/>
-
-        <!-- BOTTOM HALF: LIVE READINGS TABLE -->
-        <Border Grid.Row="3" Background="#181818" CornerRadius="6" BorderBrush="#2A2A2A" BorderThickness="1" Padding="15" Margin="0,10,0,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0" Text="LIVE INCOMING TELEMETRY LOGS" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,10"/>
-
-                <!-- REAL-TIME DATA GRID -->
-                <DataGrid x:Name="TelemetryDataGrid" Grid.Row="1" AutoGenerateColumns="False" 
-                          CanUserAddRows="False" IsReadOnly="True" Background="#121212" 
-                          RowBackground="#1E1E1E" AlternatingRowBackground="#181818" 
-                          Foreground="#FFFFFF" GridLinesVisibility="Horizontal" 
-                          HorizontalGridLinesBrush="#2A2A2A" HeadersVisibility="Column" BorderThickness="0">
-
-                    <!-- Custom Dark Column Header Style -->
-                    <DataGrid.ColumnHeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="Background" Value="#252525"/>
-                            <Setter Property="Foreground" Value="#FFC107"/>
-                            <Setter Property="FontWeight" Value="Bold"/>
-                            <Setter Property="Padding" Value="10,8"/>
-                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                            <Setter Property="BorderBrush" Value="#333333"/>
-                        </Style>
-                    </DataGrid.ColumnHeaderStyle>
-
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp, StringFormat=\{0:HH:mm:ss\}}" Width="1.2*"/>
-                        <DataGridTextColumn Header="MAC / Node ID" Binding="{Binding NodeMacAddress}" Width="2*"/>
-                        <DataGridTextColumn Header="Zone" Binding="{Binding LocationZone}" Width="1.8*"/>
-                        <DataGridTextColumn Header="Payload Value" Binding="{Binding PayloadValue, StringFormat=\{0:F2\}}" Width="1.5*"/>
-                        <DataGridTextColumn Header="Unit" Binding="{Binding MetricUnit}" Width="1*"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="1.2*"/>
-                    </DataGrid.Columns>
-                </DataGrid>
             </Grid>
         </Border>
     </Grid>

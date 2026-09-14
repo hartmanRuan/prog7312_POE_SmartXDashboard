@@ -28,5 +28,7 @@ namespace SmartXDashboard.Models
         {
             return Timestamp.ToString("HH:mm:ss.fff");
         }
+
+
     }
 }

@@ -2,6 +2,7 @@
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using SmartX.Api.Models;
 using SmartXDashboard.Models;
 using SmartXDashboard.Services;
 using System;
@@ -18,7 +19,7 @@ namespace SmartXDashboard
     {
         private readonly TelemetryApiClient _apiClient = new();
         private readonly DispatcherTimer _pollTimer = new();
-        private readonly ObservableCollection<TelemetryPacket<double>> _telemetryLog = new();
+        private readonly ObservableCollection<SmartX.Api.Models.TelemetryPacket<double>> _telemetryLog = new();
         private readonly ObservableCollection<LiveChartsCore.Defaults.ObservableValue> _chartValues = new();
 
         public ISeries[] Series { get; set; }
@@ -91,10 +92,20 @@ namespace SmartXDashboard
 
                 foreach (var packet in readings.TakeLast(20))
                 {
-                    _telemetryLog.Add(packet);
-                    _chartValues.Add(new LiveChartsCore.Defaults.ObservableValue(packet.PayloadValue));
+                    var localPacket = new SmartXDashboard.Models.TelemetryPacket<double>
+                    {
+                        Timestamp = packet.Timestamp,
+                        MacAddress = packet.MacAddress,
+                        LocationZone = (SmartXDashboard.Models.ZoneLocation)packet.LocationZone,
+                        PayloadValue = Convert.ToDouble(packet.PayloadValue),
+                        MetricUnit = packet.MetricUnit,
+                        SeverityStatus = packet.SeverityStatus
+                    };
+
+                    _chartValues.Add(new LiveChartsCore.Defaults.ObservableValue(localPacket.PayloadValue));
+                    ProcessIncomingPacket(localPacket);
                 }
-            
+
             }
             catch (Exception ex)
             {
@@ -201,7 +212,49 @@ namespace SmartXDashboard
 
 
 
+        private const double UpperThreshold = 85.0;
+        private const double LowerThreshold = 10.0;
 
+        private void ProcessIncomingPacket(SmartXDashboard.Models.TelemetryPacket<double> packet)
+        {
+            if (packet.PayloadValue > UpperThreshold || packet.PayloadValue < LowerThreshold)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    WarningBanner.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#3A1E1E"));
+                    WarningText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF5252"));
+                    WarningText.Text = $"WARNING: Node [{packet.MacAddress}] out of range! Value: {packet.PayloadValue:F2} {packet.MetricUnit}";
+                });
+            }
+            else
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    WarningBanner.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E3A1E"));
+                    WarningText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
+                    WarningText.Text = "STATUS: NORMAL - All telemetry streams within safe operating thresholds";
+                });
+            }
+        }
+
+        private void TriggerWarning(string message)
+        {
+            // Execute on UI thread if called from background thread
+            Dispatcher.Invoke(() =>
+            {
+                WarningBanner.Background = System.Windows.Media.Brushes.Red;
+                WarningText.Text = message;
+            });
+        }
+
+        private void ClearWarning()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                WarningBanner.Background = System.Windows.Media.Brushes.ForestGreen;
+                WarningText.Text = "Status: Normal";
+            });
+        }
 
 
 
