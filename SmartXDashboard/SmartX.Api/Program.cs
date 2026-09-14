@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using SmartX.Api.Data;
+
 namespace SmartX.Api
 {
     public class Program
@@ -17,12 +20,17 @@ namespace SmartX.Api
                 c.CustomSchemaIds(type => type.ToString());
             });
 
-            builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-    });
 
+            builder.Services.AddDbContext<SmartXDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Combine all controller and JSON options into ONE block:
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });
             var app = builder.Build();
 
             // Enable Swagger UI in Development

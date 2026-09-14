@@ -8,8 +8,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "request",
-        "Type": "SmartX.Api.Models.LoginRequest",
+        "Name": "model",
+        "Type": "SmartX.Api.Controllers.UserDto",
         "IsRequired": true
       }
     ],
@@ -24,8 +24,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "request",
-        "Type": "SmartX.Api.Models.RegisterRequest",
+        "Name": "model",
+        "Type": "SmartX.Api.Controllers.UserDto",
         "IsRequired": true
       }
     ],
@@ -33,25 +33,52 @@
   },
   {
     "ContainingType": "SmartX.Api.Controllers.NodesController",
-    "Method": "GetNodes",
-    "RelativePath": "api/Nodes",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "SmartX.Api.Controllers.NodesController",
-    "Method": "RegisterNode",
-    "RelativePath": "api/Nodes",
+    "Method": "UploadFile",
+    "RelativePath": "api/Nodes/{macAddress}/upload",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "node",
-        "Type": "SmartX.Api.Models.SensorNode",
+        "Name": "macAddress",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartX.Api.Controllers.NodesController",
+    "Method": "RegisterNode",
+    "RelativePath": "api/Nodes/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "SmartX.Api.Controllers.SensorNodeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SmartX.Api.Controllers.NodesController",
+    "Method": "GetUserNode",
+    "RelativePath": "api/Nodes/user/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],

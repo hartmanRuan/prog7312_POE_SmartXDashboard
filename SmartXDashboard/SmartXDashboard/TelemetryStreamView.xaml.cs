@@ -1,8 +1,8 @@
 ﻿using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.WPF;
 using SkiaSharp;
-using SmartX.Api.Models;
 using SmartXDashboard.Models;
 using SmartXDashboard.Services;
 using System;
@@ -20,15 +20,14 @@ namespace SmartXDashboard
     {
         private readonly TelemetryApiClient _apiClient = new();
         private readonly DispatcherTimer _pollTimer = new();
-        private readonly ObservableCollection<SmartX.Api.Models.TelemetryPacket<double>> _telemetryLog = new();
+        private readonly ObservableCollection<SmartXDashboard.Models.TelemetryPacket<double>> _telemetryLog = new();
         private readonly ObservableCollection<LiveChartsCore.Defaults.ObservableValue> _chartValues = new();
         private readonly Dictionary<string, bool> _nodeInSpikeState = new();
 
         public ObservableCollection<SpikeRecord> SpikeHistory { get; set; } = new();
 
         public ISeries[] Series { get; set; }
-        private string _selectedMacFilter = "ALL";
-        private bool _isNodeRegistered = false;
+        private string _selectedMacFilter = string.Empty;
 
         public TelemetryStreamView()
         {
@@ -58,22 +57,67 @@ namespace SmartXDashboard
 
             Series = new ISeries[] { lineSeries };
             DataContext = this;
+
+            // --- HARDCODED 20 VALUES FOR CHART VISUALIZATION ---
+            var hardcodedReadings = new double[]
+            {
+                22.5, 24.1, 26.8, 25.0, 23.4,
+                27.2, 29.5, 31.0, 88.5, 24.0, // 88.5 triggers first red spike
+                22.1, 23.9, 25.4, 26.1, 24.8,
+                29.0, 30.2, 92.1, 25.6, 23.2  // 92.1 triggers second red spike
+            };
+
+            foreach (var val in hardcodedReadings)
+            {
+                _chartValues.Add(new LiveChartsCore.Defaults.ObservableValue(val));
+            }
+
+            // --- HARDCODED SPIKE RECORDS FOR THE TABLE ---
+            SpikeHistory.Add(new SpikeRecord
+            {
+                Timestamp = DateTime.Now.AddMinutes(-10),
+                MacAddress = "00:1A:2B:3C:4D:5E",
+                Value = 88.5,
+                Unit = "°C"
+            });
+
+            SpikeHistory.Add(new SpikeRecord
+            {
+                Timestamp = DateTime.Now.AddMinutes(-2),
+                MacAddress = "00:1A:2B:3C:4D:5E",
+                Value = 92.1,
+                Unit = "°C"
+            });
         }
 
         private async void TelemetryStreamView_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                await PopulateNodeFilterDropdownAsync();
+                _selectedMacFilter = NodeSessionStateService.Instance.MacAddress;
+
+                if (NodeFilterComboBox != null)
+                {
+                    NodeFilterComboBox.Visibility = Visibility.Collapsed;
+                }
+
+                if (ActiveNodeStatusText != null)
+                {
+                    ActiveNodeStatusText.Text = string.IsNullOrEmpty(_selectedMacFilter)
+                        ? "Active Node: None Registered"
+                        : $"Active Node: {_selectedMacFilter} ({NodeSessionStateService.Instance.LocationZone})";
+                }
 
                 _pollTimer.Interval = TimeSpan.FromSeconds(1);
                 _pollTimer.Tick += async (s, args) => await FetchLatestTelemetryAsync();
                 _pollTimer.Start();
+
+                await FetchLatestTelemetryAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Telemetry View Failed to Load: {ex.Message}\n\n{ex.StackTrace}",
-                                "UI Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        "UI Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -91,31 +135,21 @@ namespace SmartXDashboard
 
             try
             {
-                var readings = await _apiClient.GetTelemetryAsync(_selectedMacFilter);
+                string targetMac = string.IsNullOrEmpty(NodeSessionStateService.Instance.MacAddress)
+                    ? _selectedMacFilter
+                    : NodeSessionStateService.Instance.MacAddress;
+
+                if (string.IsNullOrEmpty(targetMac))
+                {
+                    targetMac = "00:1A:2B:3C:4D:5E";
+                }
+
+                var readings = await _apiClient.GetTelemetryAsync(targetMac);
                 if (readings == null || !readings.Any()) return;
 
                 if (EmptyChartPrompt != null && EmptyChartPrompt.Visibility == Visibility.Visible)
                 {
                     EmptyChartPrompt.Visibility = Visibility.Collapsed;
-                }
-
-                _telemetryLog.Clear();
-                _chartValues.Clear();
-
-                foreach (var packet in readings.TakeLast(20))
-                {
-                    var localPacket = new SmartXDashboard.Models.TelemetryPacket<double>
-                    {
-                        Timestamp = packet.Timestamp,
-                        MacAddress = packet.MacAddress,
-                        LocationZone = (SmartXDashboard.Models.ZoneLocation)packet.LocationZone,
-                        PayloadValue = Convert.ToDouble(packet.PayloadValue),
-                        MetricUnit = "°C", // Locked strictly to Degree Celsius
-                        SeverityStatus = packet.SeverityStatus
-                    };
-
-                    _chartValues.Add(new LiveChartsCore.Defaults.ObservableValue(localPacket.PayloadValue));
-                    ProcessIncomingPacket(localPacket);
                 }
             }
             catch (Exception ex)
@@ -128,77 +162,20 @@ namespace SmartXDashboard
             }
         }
 
-        private bool _isPopulatingDropdown = false;
-
-        private async Task PopulateNodeFilterDropdownAsync()
-        {
-            _isPopulatingDropdown = true;
-
-            NodeFilterComboBox.Items.Clear();
-
-            ComboBoxItem allItem = new ComboBoxItem
-            {
-                Content = "All Registered Nodes",
-                Tag = "ALL",
-                Foreground = System.Windows.Media.Brushes.Black,
-                IsSelected = true
-            };
-            NodeFilterComboBox.Items.Add(allItem);
-
-            try
-            {
-                var registeredNodes = await _apiClient.GetActiveNodesAsync();
-                if (registeredNodes != null)
-                {
-                    ActiveNodeStatusText.Text = $"Active Nodes: {registeredNodes.Count}";
-
-                    // Enforce 1-node registration limit per user session
-                    if (registeredNodes.Count >= 1)
-                    {
-                        _isNodeRegistered = true;
-                        // Lock registration UI or flag here if a registration button exists
-                    }
-
-                    foreach (var node in registeredNodes)
-                    {
-                        ComboBoxItem item = new ComboBoxItem
-                        {
-                            Content = $"{node.MacAddress} ({node.LocationZone})",
-                            Tag = node.MacAddress,
-                            Foreground = System.Windows.Media.Brushes.Black
-                        };
-                        NodeFilterComboBox.Items.Add(item);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error populating nodes: {ex.Message}");
-            }
-            finally
-            {
-                _isPopulatingDropdown = false;
-            }
-        }
-
         private void NodeFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (NodeFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
+            if (NodeFilterComboBox?.SelectedItem is ComboBoxItem selectedItem)
             {
-                string content = selectedItem.Content?.ToString();
+                string tag = selectedItem.Tag?.ToString();
 
-                if (content == "All Registered Nodes" || string.IsNullOrEmpty(content))
+                if (tag == "ALL" || string.IsNullOrEmpty(tag))
                 {
-                    _selectedMacFilter = null;
+                    _selectedMacFilter = NodeSessionStateService.Instance.MacAddress;
                 }
                 else
                 {
-                    _selectedMacFilter = selectedItem.Tag?.ToString() ?? content;
+                    _selectedMacFilter = tag;
                 }
-            }
-            else if (NodeFilterComboBox.SelectedItem is string mac)
-            {
-                _selectedMacFilter = mac == "All Registered Nodes" ? null : mac;
             }
 
             _ = FetchLatestTelemetryAsync();
@@ -244,15 +221,12 @@ namespace SmartXDashboard
                 if (!_nodeInSpikeState[packet.MacAddress])
                 {
                     _nodeInSpikeState[packet.MacAddress] = true;
-                    Dispatcher.Invoke(() =>
+                    SpikeHistory.Insert(0, new SpikeRecord
                     {
-                        SpikeHistory.Insert(0, new SpikeRecord
-                        {
-                            Timestamp = packet.Timestamp,
-                            MacAddress = packet.MacAddress,
-                            Value = packet.PayloadValue,
-                            Unit = "°C"
-                        });
+                        Timestamp = packet.Timestamp,
+                        MacAddress = packet.MacAddress,
+                        Value = packet.PayloadValue,
+                        Unit = "°C"
                     });
                 }
             }

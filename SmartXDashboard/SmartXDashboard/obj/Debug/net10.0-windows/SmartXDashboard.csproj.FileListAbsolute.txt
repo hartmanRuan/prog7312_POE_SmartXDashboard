@@ -103,3 +103,7 @@ C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboar
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\runtimes\win-x64\native\k5sprt64.dll
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\runtimes\win-x64\native\krb5_64.dll
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\runtimes\win-x64\native\krbcc64.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Microsoft.EntityFrameworkCore.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Microsoft.EntityFrameworkCore.SqlServer.dll

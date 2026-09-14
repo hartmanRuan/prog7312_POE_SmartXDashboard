@@ -2,19 +2,15 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using SmartX.Api.Repositories;
 using SmartXDashboard.Models;
 using SmartXDashboard.Services;
 
 namespace SmartXDashboard
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly AnalyticsService _analyticsService = new AnalyticsService();
-        private readonly TelemetrySimulator _simulator =new();
+        private readonly AnalyticsService _analyticsService = new();
+        private readonly TelemetrySimulator _simulator = new();
 
         public MainWindow()
         {
@@ -22,13 +18,13 @@ namespace SmartXDashboard
 
             MainContentFrame.Children.Clear();
             MainContentFrame.Children.Add(new SensorIngestionView());
-            
 
             RefreshDashboardMetrics();
         }
 
         private void NavProvisioning_Click(object sender, RoutedEventArgs e)
         {
+            _simulator.Stop(); // Stop simulation when leaving telemetry view
             MainContentFrame.Children.Clear();
             MainContentFrame.Children.Add(new SensorIngestionView());
         }
@@ -38,25 +34,29 @@ namespace SmartXDashboard
             MainContentFrame.Children.Clear();
             MainContentFrame.Children.Add(new TelemetryStreamView());
             _simulator.Start();
-
         }
 
         private void SignOut_Click(object sender, RoutedEventArgs e)
         {
-            LoginWindow login = new LoginWindow();
+            _simulator.Stop();
+            // Clear session state on sign out
+            NodeSessionStateService.Instance.CurrentUserId = 0;
+            NodeSessionStateService.Instance.Username = string.Empty;
+            NodeSessionStateService.Instance.IsNodeRegistered = false;
+            NodeSessionStateService.Instance.MacAddress = string.Empty;
+            NodeSessionStateService.Instance.BarcodeValue = string.Empty;
+            NodeSessionStateService.Instance.LocationZone = string.Empty;
+
+            LoginWindow login = new();
             login.Show();
             this.Close();
         }
 
-        /// <summary>
-        /// Recalculates metrics using AnalyticsService and updates header/summary card controls.
-        /// </summary>
         public void RefreshDashboardMetrics(IEnumerable<TelemetryPacket<double>> livePackets = null)
         {
             var samplePackets = livePackets ?? GetInitialSamplePackets();
             var metrics = _analyticsService.CalculateMetrics(samplePackets);
 
-            // Safely assign metrics if header or summary text controls exist in MainWindow.xaml
             if (FindName("TotalNodesText") is TextBlock totalNodesText)
                 totalNodesText.Text = metrics.ActiveNodesCount.ToString();
 
@@ -72,12 +72,19 @@ namespace SmartXDashboard
 
         private List<TelemetryPacket<double>> GetInitialSamplePackets()
         {
-            var nodes = SensorRepository.Instance.GetNodes().ToList();
             var list = new List<TelemetryPacket<double>>();
 
-            foreach (var node in nodes)
+            // Fallback sample packet bounded to current user session MAC if available
+            string mac = NodeSessionStateService.Instance.MacAddress;
+            if (!string.IsNullOrEmpty(mac))
             {
-                list.Add(new TelemetryPacket<double>(node.MacAddress, (ZoneLocation)node.LocationZone, 22.4, "°C", NodeStatus.Active));
+                list.Add(new TelemetryPacket<double>
+                {
+                    MacAddress = mac,
+                    PayloadValue = 22.4,
+                    MetricUnit = "°C",
+                    Timestamp = System.DateTime.Now
+                });
             }
 
             return list;

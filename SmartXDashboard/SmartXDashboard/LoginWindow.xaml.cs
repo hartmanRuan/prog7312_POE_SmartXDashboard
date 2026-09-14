@@ -1,25 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
+﻿using SmartXDashboard.Services;
+using System;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SmartXDashboard
 {
     public partial class LoginWindow : Window
     {
-        private readonly System.Net.Http.HttpClient _httpClient = new()
-        {
-            BaseAddress = new System.Uri("https://localhost:5000/") 
-        };
+        private readonly TelemetryApiClient _apiClient = new();
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -37,36 +27,38 @@ namespace SmartXDashboard
             RegisterForm.Visibility = Visibility.Visible;
         }
 
-        private static readonly Dictionary<string, string> MockUserDatabase = new Dictionary<string, string>();
-
-        private void LoginSubmit_Click(object sender, RoutedEventArgs e)
+        private async void LoginSubmit_Click(object sender, RoutedEventArgs e)
         {
             string username = LoginUsernameInput.Text;
             string password = LoginPasswordInput.Password;
 
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            var authResponse = await _apiClient.LoginAsync(username, password);
+            if (authResponse == null)
             {
-                MessageBox.Show("Please enter both username and password.");
+                MessageBox.Show("Invalid username or password.");
                 return;
             }
 
-            if (MockUserDatabase.ContainsKey(username) && MockUserDatabase[username] == password)
+            // Save session details
+            NodeSessionStateService.Instance.CurrentUserId = authResponse.UserId;
+            NodeSessionStateService.Instance.Username = authResponse.Username;
+
+            if (authResponse.HasNode && authResponse.Node != null)
             {
-                var dashboard = new MainWindow();
-                dashboard.Show();
-                this.Close();
+                NodeSessionStateService.Instance.IsNodeRegistered = true;
+                NodeSessionStateService.Instance.MacAddress = authResponse.Node.MacAddress;
+                NodeSessionStateService.Instance.BarcodeValue = authResponse.Node.Barcode;
+                NodeSessionStateService.Instance.LocationZone = authResponse.Node.LocationZone;
             }
-            else
-            {
-                MessageBox.Show("Invalid username or password.");
-            }
+
+            OpenMainWindow();
         }
 
-        private void SignupSubmit_Click(object sender, RoutedEventArgs e)
+        private async void SignupSubmit_Click(object sender, RoutedEventArgs e)
         {
             string username = SignupEmailInput.Text;
             string password = SignupPasswordInput.Password;
-            string confirmPassword = SignupPasswordInput.Password;
+            string confirmPassword = SignupPasswordInput.Password; // Update if you have a separate confirm box
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
@@ -80,17 +72,16 @@ namespace SmartXDashboard
                 return;
             }
 
-            if (MockUserDatabase.ContainsKey(username))
+            bool registered = await _apiClient.RegisterUserAsync(username, password);
+            if (!registered)
             {
-                MessageBox.Show("Username already exists.");
+                MessageBox.Show("Registration failed. Username may already exist.");
                 return;
             }
 
-            MockUserDatabase[username] = password;
             MessageBox.Show("Registration successful! You can now log in.");
             LoginForm.Visibility = Visibility.Visible;
             RegisterForm.Visibility = Visibility.Collapsed;
-            
         }
 
         private void OpenMainWindow()
@@ -100,13 +91,12 @@ namespace SmartXDashboard
             this.Close();
         }
 
-        //Password Strenght
+        // Password Strength Evaluation
         private void SignupPasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
         {
             string password = SignupPasswordInput.Password;
             int score = EvaluatePasswordStrength(password);
 
-            //Update Window based on strength score
             if (string.IsNullOrEmpty(password))
             {
                 StrengthBar.Width = 0;
@@ -116,21 +106,21 @@ namespace SmartXDashboard
             else if (score <= 2)
             {
                 StrengthBar.Width = 80;
-                StrengthBar.Background = (Brush)new BrushConverter().ConvertFrom("#E50914"); // Red - password is weak
+                StrengthBar.Background = (Brush)new BrushConverter().ConvertFrom("#E50914");
                 StrengthText.Text = "Weak";
                 StrengthText.Foreground = (Brush)new BrushConverter().ConvertFrom("#E50914");
             }
             else if (score == 3 || score == 4)
             {
                 StrengthBar.Width = 180;
-                StrengthBar.Background = (Brush)new BrushConverter().ConvertFrom("#FFC700"); // Yellow - medium password
+                StrengthBar.Background = (Brush)new BrushConverter().ConvertFrom("#FFC700");
                 StrengthText.Text = "Medium";
                 StrengthText.Foreground = (Brush)new BrushConverter().ConvertFrom("#FFC700");
             }
             else
             {
                 StrengthBar.Width = 270;
-                StrengthBar.Background = (Brush)new BrushConverter().ConvertFrom("#34C759"); // Green - password is strong
+                StrengthBar.Background = (Brush)new BrushConverter().ConvertFrom("#34C759");
                 StrengthText.Text = "Strong";
                 StrengthText.Foreground = (Brush)new BrushConverter().ConvertFrom("#34C759");
             }
@@ -144,7 +134,7 @@ namespace SmartXDashboard
             if (password.Length >= 12) score++;
             if (Regex.IsMatch(password, @"[a-z]") && Regex.IsMatch(password, @"[A-Z]")) score++;
             if (Regex.IsMatch(password, @"[0-9]")) score++;
-            if (Regex.IsMatch(password, @"[!@#$%^&*(),.? logic:{""}:{}|<>]")) score++;
+            if (Regex.IsMatch(password, @"[!@#$%^&*(),.?\:{ }|<>]")) score++;
 
             return score;
         }

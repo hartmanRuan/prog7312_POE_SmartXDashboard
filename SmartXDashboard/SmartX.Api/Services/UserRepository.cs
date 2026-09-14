@@ -17,7 +17,7 @@ namespace SmartX.Api.Services
 
         private static User CreateUser(string username, string plainPassword, string role)
         {
-            var user = new User { Username = username, Role = role };
+            var user = new User { Username = username };
             user.PasswordHash = _hasher.HashPassword(user, plainPassword);
             return user;
         }
@@ -31,9 +31,9 @@ namespace SmartX.Api.Services
             return result == PasswordVerificationResult.Success;
         }
 
-        public static void AddUser(string username, string plainPassword, string role)
+        public static void AddUser(string username, string plainPassword)
         {
-            var user = new User { Username = username, Role = role };
+            var user = new User { Username = username };
             user.PasswordHash = _hasher.HashPassword(user, plainPassword);
             Users.Add(user);
         }

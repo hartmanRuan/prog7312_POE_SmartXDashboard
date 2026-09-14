@@ -18,6 +18,39 @@ namespace SmartXDashboard
         public SensorIngestionView()
         {
             InitializeComponent();
+            this.Loaded += SensorIngestionView_Loaded;
+        }
+
+        private void SensorIngestionView_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Restore state if a node was already registered or saved in this session
+            if (NodeSessionStateService.Instance.IsNodeRegistered)
+            {
+                MacInput.Text = NodeSessionStateService.Instance.MacAddress;
+
+                // Select matching zone if available
+                if (!string.IsNullOrEmpty(NodeSessionStateService.Instance.LocationZone))
+                {
+                    foreach (ComboBoxItem item in ZoneComboBox.Items)
+                    {
+                        if (item.Content?.ToString() == NodeSessionStateService.Instance.LocationZone)
+                        {
+                            ZoneComboBox.SelectedItem = item;
+                            break;
+                        }
+                    }
+                }
+
+                // Lock down fields since only 1 node is permitted per user account
+                MacInput.IsReadOnly = true;
+                ZoneComboBox.IsEnabled = false;
+                MetricComboBox.IsEnabled = false;
+
+                // If a register button exists in XAML, disable it
+                // RegisterButton.IsEnabled = false;
+                StatusLabel.Text = "Status: Node already registered and persisted.";
+                StatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(39, 174, 96));
+            }
         }
 
         private void BrowseFile_Click(object sender, RoutedEventArgs e)
@@ -48,55 +81,36 @@ namespace SmartXDashboard
                 return;
             }
 
-            // 1. Map ComboBox selections to Model Enums
-            ZoneLocation zone = ZoneComboBox.SelectedIndex switch
-            {
-                0 => ZoneLocation.ZoneA_Environmental,
-                1 => ZoneLocation.ZoneB_PowerGrid,
-                2 => ZoneLocation.ZoneC_ActuatorControl,
-                _ => ZoneLocation.ZoneA_Environmental
-            };
+            string selectedZoneText = (ZoneComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Zone A";
+            string selectedMetricText = (MetricComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Environmental";
+            int userId = NodeSessionStateService.Instance.CurrentUserId;
+            string barcode = $"BC-{mac}"; // Generate or map barcode value accordingly
 
-            SensorCategory category = MetricComboBox.SelectedIndex switch
-            {
-                0 => SensorCategory.Environmental,
-                1 => SensorCategory.Electrical,
-                2 => SensorCategory.Mechanical,
-                _ => SensorCategory.Environmental
-            };
-
-            // 2. Instantiate SensorNode matching your model properties
-            var newSensor = new SensorNode
-            {
-                MacAddress = mac,
-                NodeId = mac,
-                LocationZone = zone,
-                Category = category,
-                Status = NodeStatus.Active,
-                ProvisionedTimestamp = DateTime.Now
-            };
-
-            // 3. Post node to Web API over HTTP
-            bool isRegistered = await _apiClient.RegisterNodeAsync(newSensor);
+            // Call backend API client to register node bound to current user
+            bool isRegistered = await _apiClient.RegisterNodeAsync(userId, mac, barcode, selectedZoneText);
             if (!isRegistered)
             {
-                MessageBox.Show("Failed to register node with the API server. Please check your backend connection.", "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Failed to register node with the API server. Ensure you have not already registered a node or check your connection.", "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            // 4. Upload configuration metadata file via multipart/form-data if selected
+            // Persist state to singleton service so it survives view navigation
+            NodeSessionStateService.Instance.IsNodeRegistered = true;
+            NodeSessionStateService.Instance.MacAddress = mac;
+            NodeSessionStateService.Instance.BarcodeValue = barcode;
+            NodeSessionStateService.Instance.LocationZone = selectedZoneText;
+
+            // Upload configuration metadata file via multipart/form-data if selected
             if (!string.IsNullOrEmpty(_selectedFilePath))
             {
-                bool isFileUploaded = await _apiClient.UploadMetadataFileAsync(mac, _selectedFilePath);
+                bool isFileUploaded = await _apiClient.UploadNodeFileAsync(mac, _selectedFilePath);
                 if (!isFileUploaded)
                 {
                     MessageBox.Show("Node was registered, but the attached file failed to upload.", "Upload Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
 
-            // 5. Generate dynamic payload string & barcode image
-            string selectedZoneText = (ZoneComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
-            string selectedMetricText = (MetricComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+            // Generate dynamic payload string & barcode image
             string qrPayload = $"smartx://node?mac={mac}&zone={Uri.EscapeDataString(selectedZoneText)}&metric={Uri.EscapeDataString(selectedMetricText)}";
 
             BitmapImage qrBitmap = GenerateQrCodeBitmap(qrPayload);
@@ -107,10 +121,15 @@ namespace SmartXDashboard
                 QrCodeImage.Visibility = Visibility.Visible;
             }
 
-            // 6. Update right panel dynamic overlay labels
+            // Update right panel dynamic overlay labels
             NodeIdLabel.Text = $"NODE ID: {mac}";
             StatusLabel.Text = "Status: Provisioned & Active";
             StatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(39, 174, 96));
+
+            // Lock down inputs after successful registration
+            MacInput.IsReadOnly = true;
+            ZoneComboBox.IsEnabled = false;
+            MetricComboBox.IsEnabled = false;
         }
 
         private BitmapImage GenerateQrCodeBitmap(string payload)

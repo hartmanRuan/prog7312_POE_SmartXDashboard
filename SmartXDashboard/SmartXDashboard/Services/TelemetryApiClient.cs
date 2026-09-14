@@ -1,127 +1,110 @@
-﻿using SmartXDashboard.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using SmartXDashboard.Models;
 using System.Windows;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.IO;
 
 namespace SmartXDashboard.Services
 {
     public class TelemetryApiClient
     {
-        private readonly HttpClient _client;
-        private const string BaseUrl = "http://localhost:5000/api/";
+        private readonly HttpClient _httpClient;
 
         public TelemetryApiClient()
         {
-            _client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
-        }
-
-        public async Task<List<SensorNode>> GetNodesAsync()
-        {
-            try
+            var handler = new HttpClientHandler
             {
-                return await _client.GetFromJsonAsync<List<SensorNode>>("nodes") ?? new List<SensorNode>();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[API Error] GetNodes failed: {ex.Message}");
-                return new List<SensorNode>();
-            }
-        }
-
-        public async Task<List<TelemetryPacket<double>>> GetTelemetryAsync(string? macAddress = null)
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters = { new JsonStringEnumConverter() }
+                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
             };
 
-            string url = string.IsNullOrEmpty(macAddress) ? "telemetry" : $"telemetry?macAddress={macAddress}";
-
-            try
+            _httpClient = new HttpClient(handler)
             {
-                return await _client.GetFromJsonAsync<List<TelemetryPacket<double>>>(url, options) ?? new();
-            }
-            catch
-            {
-                return new();
-            }
+                BaseAddress = new Uri("http://localhost:5000/") // Match your backend port
+            };
         }
 
-        public async Task<bool> PostTelemetryAsync(TelemetryPacket<double> packet)
+        public async Task<AuthResponse?> LoginAsync(string username, string password)
         {
-            try
-            {
-                var response = await _client.PostAsJsonAsync("telemetry", packet);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Bad Request Details: {errorContent}");
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"API Client Error: {ex.Message}");
-                return false;
-            }
+            var response = await _httpClient.PostAsJsonAsync("api/auth/login", new { username, password });
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadFromJsonAsync<AuthResponse>();
         }
 
-        public async Task<bool> RegisterNodeAsync(SensorNode node)
+        public async Task<bool> RegisterNodeAsync(int userId, string macAddress, string barcode, string locationZone)
         {
-            try
+            var payload = new { userId, macAddress, barcode, locationZone };
+            var response = await _httpClient.PostAsJsonAsync("api/nodes/register", new { userId, macAddress, barcode, locationZone });
+
+            if (!response.IsSuccessStatusCode)
             {
-                var response = await _client.PostAsJsonAsync("nodes", node);
-                return response.IsSuccessStatusCode;
+                string errorContent = await response.Content.ReadAsStringAsync();
+                System.Windows.MessageBox.Show($"Node Register Error ({response.StatusCode}): {errorContent}");
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[API Error] RegisterNode failed: {ex.Message}");
-                return false;
-            }
-        }
 
-        public async Task<bool> UploadMetadataFileAsync(string macAddress, string filePath)
-        {
-            if (!File.Exists(filePath)) return false;
-
-            using var content = new MultipartFormDataContent();
-            using var fileStream = File.OpenRead(filePath);
-            using var streamContent = new StreamContent(fileStream);
-
-            content.Add(streamContent, "file", Path.GetFileName(filePath));
-
-            var response = await _client.PostAsync($"nodes/{macAddress}/upload", content);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<List<SensorNode>> GetActiveNodesAsync()
+        public async Task<List<NodeModel>> GetActiveNodesAsync()
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters = { new JsonStringEnumConverter() }
-            };
+            return await _httpClient.GetFromJsonAsync<List<NodeModel>>("nodes") ?? new();
+        }
 
-            try
+        public async Task<List<TelemetryPacket<double>>> GetTelemetryAsync(string macAddress)
+        {
+            var response = await _httpClient.GetAsync($"api/telemetry/{macAddress}");
+            if (response.IsSuccessStatusCode)
             {
-                var nodes = await _client.GetFromJsonAsync<List<SensorNode>>("telemetry/nodes", options);
-                return nodes ?? new List<SensorNode>();
+                return await response.Content.ReadFromJsonAsync<List<TelemetryPacket<double>>>() ?? new();
             }
-            catch (Exception ex)
+            return new();
+        }
+        public async Task<bool> RegisterUserAsync(string username, string password)
+        {
+            var payload = new { Username = username, Password = password };
+            var response = await _httpClient.PostAsJsonAsync("api/auth/register", payload);
+
+            if (!response.IsSuccessStatusCode)
             {
-                System.Windows.MessageBox.Show($"Failed to fetch nodes: {ex.Message}");
-                return new List<SensorNode>();
+                string errorContent = await response.Content.ReadAsStringAsync();
+                System.Windows.MessageBox.Show($"Status: {response.StatusCode}\nBody: '{errorContent}'");
             }
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> PostTelemetryAsync<T>(TelemetryPacket<T> packet)
+        {
+            var response = await _httpClient.PostAsJsonAsync("telemetry", packet);
+            return response.IsSuccessStatusCode;
+        }
+        public async Task<bool> UploadNodeFileAsync(string macAddress, string filePath)
+        {
+            using var form = new MultipartFormDataContent();
+            using var fileStream = File.OpenRead(filePath);
+            using var streamContent = new StreamContent(fileStream);
+
+            form.Add(streamContent, "file", Path.GetFileName(filePath));
+
+            var response = await _httpClient.PostAsync($"api/nodes/{macAddress}/upload", form);
+            return response.IsSuccessStatusCode;
+        }
+
+        public class AuthResponse
+        {
+            public int UserId { get; set; }
+            public string Username { get; set; } = string.Empty;
+            public bool HasNode { get; set; }
+            public NodeModel? Node { get; set; }
+        }
+
+        public class NodeModel
+        {
+            public int Id { get; set; }
+            public string MacAddress { get; set; } = string.Empty;
+            public string Barcode { get; set; } = string.Empty;
+            public string LocationZone { get; set; } = string.Empty;
         }
     }
 }

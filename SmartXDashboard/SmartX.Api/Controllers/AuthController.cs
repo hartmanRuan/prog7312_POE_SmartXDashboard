@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SmartX.Api.Data;
 using SmartX.Api.Models;
-using SmartX.Api.Services;
-using System.Linq;
 
 namespace SmartX.Api.Controllers
 {
@@ -9,32 +9,58 @@ namespace SmartX.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        private readonly SmartXDbContext _context;
+
+        public AuthController(SmartXDbContext context)
         {
-            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            _context = context;
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserDto model)
+        {
+            var user = await _context.Users
+                .Include(u => u.SensorNode)
+                .FirstOrDefaultAsync(u => u.Username == model.Username);
+
+            if (user == null || user.PasswordHash != model.Password) // Simple check for prototype; use proper hashing in production
             {
-                return BadRequest(new { message = "Username and password are required." });
+                return Unauthorized(new { message = "Invalid username or password" });
             }
 
-            if (UserRepository.VerifyUser(request.Username, request.Password, out var user))
+            return Ok(new
             {
-                return Ok(new { message = "Login successful", user.Username, user.Role });
-            }
-
-            return Unauthorized(new { message = "Invalid username or password." });
+                userId = user.Id,
+                username = user.Username,
+                hasNode = user.SensorNode != null,
+                node = user.SensorNode
+            });
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] UserDto model)
         {
-            if (UserRepository.Users.Any(u => u.Username.Equals(request.Username, System.StringComparison.OrdinalIgnoreCase)))
+            if (await _context.Users.AnyAsync(u => u.Username == model.Username))
             {
-                return BadRequest(new { message = "Username already exists." });
+                return BadRequest(new { message = "Username already exists" });
             }
 
-            UserRepository.AddUser(request.Username, request.Password, request.Role);
-            return Ok(new { message = "User registered successfully." });
+            var user = new User
+            {
+                Username = model.Username,
+                PasswordHash = model.Password // Again, use hashing for production
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "User registered successfully", userId = user.Id });
         }
+    }
+
+    public class UserDto
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }

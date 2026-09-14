@@ -1,0 +1,39 @@
+Please uninstall any apps you are not doing for this semester
+
+Microsoft SQL Server
+Server Name:			localhost\SQLEXPRESS
+Authentication:			Windows Authentication
+Trust Server Certificate:	True
+
+Oracle SQL - Admin
+username: 			SYS
+role: 				SYSDBA
+password: 			SoCS2026!
+hostname: 			localhost
+port:				1521
+service name: 			XE
+
+Oracle SQL - Student
+username: 			student
+role: 				Default
+password: 			SoCS2026!
+hostname: 			localhost
+port:				1521
+service name: 			XEPDB1
+
+MongoDB
+connection string:		mongodb://localhost/
+
+MySQL Server - Admin
+username:			root
+password:			SoCS2026!
+hostname:			localhost
+port:				3306
+
+MySQL Server - Student
+username:			student
+password:			SoCS2026!
+hostname:			localhost
+port:				3306
+
+

@@ -27,7 +27,7 @@ namespace SmartX.Api.Controllers
                 SensorRepository.Instance.RegisterNode(new SensorNode
                 {
                     MacAddress = packet.MacAddress,
-                    LocationZone = packet.LocationZone
+                    LocationZone = packet.LocationZone.ToString()
                 });
             }
 

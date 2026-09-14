@@ -47,6 +47,7 @@ namespace SmartXDashboard.Services
             }, null, 0, 1500);
         }
 
+
         public void Stop()
         {
             _timer?.Dispose();

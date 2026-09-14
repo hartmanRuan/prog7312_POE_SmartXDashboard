@@ -14,17 +14,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.LoginRequest"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.UserDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.LoginRequest"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.UserDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.LoginRequest"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.UserDto"
               }
             }
           }
@@ -45,17 +45,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.RegisterRequest"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.UserDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.RegisterRequest"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.UserDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.RegisterRequest"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.UserDto"
               }
             }
           }
@@ -67,17 +67,7 @@
         }
       }
     },
-    "/api/Nodes": {
-      "get": {
-        "tags": [
-          "Nodes"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Nodes/register": {
       "post": {
         "tags": [
           "Nodes"
@@ -86,17 +76,82 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.SensorNode"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.SensorNodeDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.SensorNode"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.SensorNodeDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/SmartX.Api.Models.SensorNode"
+                "$ref": "#/components/schemas/SmartX.Api.Controllers.SensorNodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Nodes/user/{userId}": {
+      "get": {
+        "tags": [
+          "Nodes"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Nodes/{macAddress}/upload": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "parameters": [
+          {
+            "name": "macAddress",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -164,7 +219,29 @@
   },
   "components": {
     "schemas": {
-      "SmartX.Api.Models.LoginRequest": {
+      "SmartX.Api.Controllers.SensorNodeDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "macAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationZone": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SmartX.Api.Controllers.UserDto": {
         "type": "object",
         "properties": {
           "username": {
@@ -187,24 +264,6 @@
         ],
         "type": "string"
       },
-      "SmartX.Api.Models.RegisterRequest": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string",
-            "nullable": true
-          },
-          "password": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "SmartX.Api.Models.SensorCategory": {
         "enum": [
           "Environmental",
@@ -212,45 +271,6 @@
           "Mechanical"
         ],
         "type": "string"
-      },
-      "SmartX.Api.Models.SensorNode": {
-        "type": "object",
-        "properties": {
-          "macAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "nodeId": {
-            "type": "string",
-            "nullable": true
-          },
-          "locationZone": {
-            "$ref": "#/components/schemas/SmartX.Api.Models.ZoneLocation"
-          },
-          "category": {
-            "$ref": "#/components/schemas/SmartX.Api.Models.SensorCategory"
-          },
-          "status": {
-            "$ref": "#/components/schemas/SmartX.Api.Models.NodeStatus"
-          },
-          "provisionedTimestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "configFileName": {
-            "type": "string",
-            "nullable": true
-          },
-          "configFileSizeKB": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "attachedFilePath": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
       },
       "SmartX.Api.Models.TelemetryPacket`1[System.Double]": {
         "type": "object",
