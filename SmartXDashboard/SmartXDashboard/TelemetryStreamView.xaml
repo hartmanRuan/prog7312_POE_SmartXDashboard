@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              Loaded="TelemetryStreamView_Loaded"
              Unloaded="TelemetryStreamView_Unloaded"
              mc:Ignorable="d" 
@@ -63,9 +64,11 @@
                 <Border Grid.Row="1" Background="#121212" CornerRadius="4" BorderBrush="#222222" BorderThickness="1" Padding="10">
                     <Grid x:Name="ChartContainer" MinHeight="320">
                         <TextBlock x:Name="EmptyChartPrompt" Text="Awaiting telemetry data stream..." 
-                                   Foreground="#555555" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                   Foreground="#555555" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   Panel.ZIndex="1"/>
 
-                        <!-- Chart instance is injected dynamically from TelemetryStreamView.xaml.cs -->
+                        <!-- LiveCharts2 CartesianChart bound to Series, XAxes, and YAxes -->
+                        <lvc:CartesianChart Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" />
                     </Grid>
                 </Border>
             </Grid>

@@ -1,12 +1,16 @@
-﻿using System;
+﻿using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
+using SmartXDashboard.Models;
+using SmartXDashboard.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using SmartXDashboard.Models;
-using SmartXDashboard.Services;
 
 namespace SmartXDashboard
 {
@@ -15,18 +19,31 @@ namespace SmartXDashboard
         private readonly TelemetryApiClient _apiClient = new();
         private readonly DispatcherTimer _pollTimer = new();
         private readonly ObservableCollection<TelemetryPacket<double>> _telemetryLog = new();
-        private readonly ObservableCollection<double> _chartValues = new();
+        private readonly ObservableCollection<LiveChartsCore.Defaults.ObservableValue> _chartValues = new();
+
+        public ISeries[] Series { get; set; }
         private string _selectedMacFilter = "ALL";
+
+        
 
         public TelemetryStreamView()
         {
             InitializeComponent();
-
+            Series = new ISeries[]
+{
+    new LineSeries<LiveChartsCore.Defaults.ObservableValue>
+    {
+        Values = _chartValues,
+        Fill = null,
+        LineSmoothness = 0
+    }
+};
+            DataContext = this;
             // 1. Hook up the DataGrid to your telemetry log collection
-            if (TelemetryDataGrid != null)
+            /*if (TelemetryDataGrid != null)
             {
                 TelemetryDataGrid.ItemsSource = _telemetryLog;
-            }
+            }*/
         }
 
         private async void TelemetryStreamView_Loaded(object sender, RoutedEventArgs e)
@@ -52,12 +69,16 @@ namespace SmartXDashboard
             _pollTimer.Stop();
         }
 
+        private bool _isFetching = false;
+
         private async Task FetchLatestTelemetryAsync()
         {
+            if (_isFetching) return;
+            _isFetching = true;
+
             try
             {
                 var readings = await _apiClient.GetTelemetryAsync(_selectedMacFilter);
-
                 if (readings == null || !readings.Any()) return;
 
                 if (EmptyChartPrompt != null && EmptyChartPrompt.Visibility == Visibility.Visible)
@@ -71,12 +92,17 @@ namespace SmartXDashboard
                 foreach (var packet in readings.TakeLast(20))
                 {
                     _telemetryLog.Add(packet);
-                    _chartValues.Add(packet.PayloadValue);
+                    _chartValues.Add(new LiveChartsCore.Defaults.ObservableValue(packet.PayloadValue));
                 }
+            
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Telemetry Fetch Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+            finally
+            {
+                _isFetching = false;
             }
         }
 
@@ -99,7 +125,7 @@ namespace SmartXDashboard
 
             try
             {
-                var registeredNodes = await _apiClient.GetNodesAsync();
+                var registeredNodes = await _apiClient.GetActiveNodesAsync();
                 if (registeredNodes != null)
                 {
                     ActiveNodeStatusText.Text = $"Active Nodes: {registeredNodes.Count}";
@@ -128,22 +154,59 @@ namespace SmartXDashboard
 
         private void NodeFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_isPopulatingDropdown) return; // Prevent premature clearing
-
             if (NodeFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
-                _selectedMacFilter = selectedItem.Tag?.ToString() ?? "ALL";
+                string content = selectedItem.Content?.ToString();
 
-                if (ChartSelectedNodeLabel != null)
+                if (content == "All Registered Nodes" || string.IsNullOrEmpty(content))
                 {
-                    ChartSelectedNodeLabel.Text = _selectedMacFilter == "ALL"
-                        ? "Showing: All Registered Streams"
-                        : $"Showing Filtered: {_selectedMacFilter}";
+                    _selectedMacFilter = null; // Pass null so API fetches all nodes
                 }
-
-                _telemetryLog.Clear();
-                _chartValues.Clear();
+                else
+                {
+                    // If you store the MAC address in the Tag property or use the content string
+                    _selectedMacFilter = selectedItem.Tag?.ToString() ?? content;
+                }
             }
+            else if (NodeFilterComboBox.SelectedItem is string mac)
+            {
+                _selectedMacFilter = mac == "All Registered Nodes" ? null : mac;
+            }
+
+            // Optional: Trigger an immediate fetch so you don't wait for the next timer tick
+            _ = FetchLatestTelemetryAsync();
         }
+        public Axis[] XAxes { get; set; } = new Axis[]
+{
+    new Axis
+    {
+        Name = "Time / Index",
+        LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+        NamePaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+        TextSize = 12,
+        MinStep = 1
     }
+};
+
+        public Axis[] YAxes { get; set; } = new Axis[]
+        {
+    new Axis
+    {
+        Name = "Payload Value",
+        LabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+        NamePaint = new SolidColorPaint(SkiaSharp.SKColors.Black),
+        TextSize = 12
+    }
+        };
+
+
+
+
+
+
+
+
+    }
+
+
 }

@@ -1,48 +1,40 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartX.Api.Models;
-using System.Collections.Concurrent;
+using SmartX.Api.Services;
+using System.Linq;
 
 namespace SmartX.Api.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class AuthController : ControllerBase
     {
-        // Simple thread-safe in-memory user store for testing
-        private static readonly ConcurrentDictionary<string, User> _users = new();
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Username and password are required." });
+            }
+
+            if (UserRepository.VerifyUser(request.Username, request.Password, out var user))
+            {
+                return Ok(new { message = "Login successful", user.Username, user.Role });
+            }
+
+            return Unauthorized(new { message = "Invalid username or password." });
+        }
 
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-                return BadRequest("Username and password are required.");
-
-            if (_users.ContainsKey(request.Username.ToLower()))
-                return Conflict("Username already exists.");
-
-            var newUser = new User
+            if (UserRepository.Users.Any(u => u.Username.Equals(request.Username, System.StringComparison.OrdinalIgnoreCase)))
             {
-                Username = request.Username,
-                PasswordHash = request.Password, // Simple check for now
-                Role = request.Role
-            };
-
-            _users.TryAdd(request.Username.ToLower(), newUser);
-            return Ok(new { message = "Registration successful" });
-        }
-
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
-        {
-            if (_users.TryGetValue(request.Username.ToLower(), out var user))
-            {
-                if (user.PasswordHash == request.Password)
-                {
-                    return Ok(new { username = user.Username, role = user.Role, message = "Login successful" });
-                }
+                return BadRequest(new { message = "Username already exists." });
             }
 
-            return Unauthorized("Invalid username or password.");
+            UserRepository.AddUser(request.Username, request.Password, request.Role);
+            return Ok(new { message = "User registered successfully." });
         }
     }
 }

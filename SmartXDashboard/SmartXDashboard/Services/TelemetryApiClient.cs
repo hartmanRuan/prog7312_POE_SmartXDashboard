@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SmartXDashboard.Services
 {
@@ -32,17 +34,23 @@ namespace SmartXDashboard.Services
             }
         }
 
-        public async Task<List<TelemetryPacket<double>>> GetTelemetryAsync(string macFilter = "ALL")
+        public async Task<List<TelemetryPacket<double>>> GetTelemetryAsync(string? macAddress = null)
         {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
+
+            string url = string.IsNullOrEmpty(macAddress) ? "telemetry" : $"telemetry?macAddress={macAddress}";
+
             try
             {
-                return await _client.GetFromJsonAsync<List<TelemetryPacket<double>>>($"telemetry?macAddress={macFilter}")
-                       ?? new List<TelemetryPacket<double>>();
+                return await _client.GetFromJsonAsync<List<TelemetryPacket<double>>>(url, options) ?? new();
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"[API Error] GetTelemetry failed: {ex.Message}");
-                return new List<TelemetryPacket<double>>();
+                return new();
             }
         }
 
@@ -94,6 +102,26 @@ namespace SmartXDashboard.Services
 
             var response = await _client.PostAsync($"nodes/{macAddress}/upload", content);
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<List<SensorNode>> GetActiveNodesAsync()
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
+
+            try
+            {
+                var nodes = await _client.GetFromJsonAsync<List<SensorNode>>("telemetry/nodes", options);
+                return nodes ?? new List<SensorNode>();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Failed to fetch nodes: {ex.Message}");
+                return new List<SensorNode>();
+            }
         }
     }
 }

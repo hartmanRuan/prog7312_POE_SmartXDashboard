@@ -58,3 +58,6 @@ C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboar
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\SmartX.Api.dll
 C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\SmartX.Api.pdb
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\System.Net.Http.Formatting.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Newtonsoft.Json.dll
+C:\Users\emeris\Desktop\PROG7312-POE\prog7312_POE_SmartXDashboard\SmartXDashboard\SmartXDashboard\bin\Debug\net10.0-windows\Newtonsoft.Json.Bson.dll

@@ -9,16 +9,10 @@ namespace SmartX.Api.Controllers
     public class TelemetryController : ControllerBase
     {
         [HttpGet]
-        public IActionResult GetTelemetry([FromQuery] string macAddress = "ALL")
+        public IActionResult GetTelemetry()
         {
-            var telemetry = SensorRepository.Instance.GetTelemetry();
-
-            if (!string.IsNullOrEmpty(macAddress) && !macAddress.Equals("ALL", StringComparison.OrdinalIgnoreCase))
-            {
-                telemetry = telemetry.Where(t => t.MacAddress.Equals(macAddress, StringComparison.OrdinalIgnoreCase));
-            }
-
-            return Ok(telemetry.ToList());
+            var logs = SensorRepository.Instance.GetTelemetry();
+            return Ok(logs);
         }
 
         [HttpPost]
@@ -38,6 +32,13 @@ namespace SmartX.Api.Controllers
             }
 
             return Ok(new { status = "Telemetry stored successfully" });
+        }
+
+        [HttpGet("nodes")]
+        public IActionResult GetNodes()
+        {
+            var nodes = SensorRepository.Instance.GetNodes();
+            return Ok(nodes);
         }
     }
 }

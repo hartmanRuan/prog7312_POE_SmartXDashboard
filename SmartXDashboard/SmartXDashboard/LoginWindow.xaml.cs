@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -15,6 +16,10 @@ namespace SmartXDashboard
 {
     public partial class LoginWindow : Window
     {
+        private readonly System.Net.Http.HttpClient _httpClient = new()
+        {
+            BaseAddress = new System.Uri("https://localhost:5000/") 
+        };
         public LoginWindow()
         {
             InitializeComponent();
@@ -32,15 +37,33 @@ namespace SmartXDashboard
             RegisterForm.Visibility = Visibility.Visible;
         }
 
-        private void LoginSubmit_Click(object sender, RoutedEventArgs e)
+        private async void LoginSubmit_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(LoginUsernameInput.Text))
+            try
             {
-                MessageBox.Show("Please enter your operator credentials.", "Authentication Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+                var loginData = new { Username = LoginUsernameInput.Text, Password = LoginPasswordInput.Password };
 
-            OpenMainWindow();
+                // Option B manual serialization (or PostAsJsonAsync if package is installed)
+                var jsonPayload = System.Text.Json.JsonSerializer.Serialize(loginData);
+                var content = new System.Net.Http.StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync("api/auth/login", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var mainWindow = new MainWindow();
+                    mainWindow.Show();
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Access Denied: Invalid credentials.", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Connection failed: Ensure the API server is running.\n\nDetails: {ex.Message}", "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SignupSubmit_Click(object sender, RoutedEventArgs e)
